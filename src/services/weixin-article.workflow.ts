@@ -197,6 +197,14 @@ export class WeixinArticleWorkflow
         retries: { limit: 2, delay: "5 second", backoff: "exponential" },
         timeout: "15 minutes",
       }, async () => {
+        const ENABLE_DEDUPLICATION = await ConfigManager.getInstance().get(
+          "ENABLE_DEDUPLICATION",
+        );
+
+        if (!ENABLE_DEDUPLICATION) {
+          return allContents;
+        }
+
         // 初始化 embedding 模型
         this.embeddingModel = await EmbeddingFactory.getInstance().getProvider({
           providerType: EmbeddingProviderType.DASHSCOPE,
