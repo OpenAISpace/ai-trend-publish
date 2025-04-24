@@ -5,7 +5,10 @@
 
 > 🌰 示例公众号：**AISPACE科技空间**
 
-![](http://mmbiz.qpic.cn/mmbiz_jpg/QNWU7jFZnia19hwqa3MkjQVmq1bLmxfmWqR6pb8L1iaESdtPyLhsAxH3Eqiaia8urKUEMkUlxRPKj1wcdQaQ5AzNaA/0)
+![](https://oss.liuyaowen.cn/image/202504242030107.png)
+点击链接加入群聊【AI-Trend-Publish】：https://qm.qq.com/q/EsiP8ZlEFa
+![QQ群](https:/oss.liuyaowen.cn/image/202504242031044.png)
+
 
 > 即刻关注，体验 AI 智能创作的内容～
 
@@ -442,4 +445,4 @@ npx ts-node -r tsconfig-paths/register src\modules\render\test\test.weixin.templ
 
 - 端点: `/api/workflow`
 - 支持方法: `triggerWorkflow`
-- 详细文档: [JSON-RPC API 文档](docs/json-rpc-api.html)
+- 详细文档: [JSON-RPC API 文档](https://openaispace.github.io/ai-trend-publish/json-rpc-api.html )
