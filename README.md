@@ -261,6 +261,9 @@ BARK_URL="your_key"
 # 钉钉通知配置 关键词为：通知
 ENABLE_DINGDING=true                     # 是否启用钉钉通知
 DINGDING_WEBHOOK="your_webhook_url"      # 钉钉机器人的 Webhook URL
+
+# API 鉴权配置
+API_KEY=your-api-key                    # API访问密钥
 ```
 
 ## ⚠️ 配置IP白名单
@@ -432,3 +435,11 @@ npx ts-node -r tsconfig-paths/register src\modules\render\test\test.weixin.templ
 ## 📄 许可证
 
 本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+
+### JSON-RPC API
+
+提供了基于 JSON-RPC 2.0 协议的 API，支持手动触发工作流。
+
+- 端点: `/api/workflow`
+- 支持方法: `triggerWorkflow`
+- 详细文档: [JSON-RPC API 文档](docs/json-rpc-api.html)

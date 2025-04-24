@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作流手动触发 API - AI Trend Publish</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --text-color: #1f2937;
+            --bg-color: #ffffff;
+            --nav-bg: #f3f4f6;
+            --code-bg: #282c34;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            height: 100vh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .nav-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+        }
+
+        .nav-toggle span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: white;
+            margin: 4px auto;
+            transition: all 0.3s;
+        }
+        
+        nav {
+            width: 280px;
+            height: 100vh;
+            padding: 2rem 1.5rem;
+            background: var(--nav-bg);
+            border-right: 1px solid #e5e7eb;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+        
+        main {
+            flex: 1;
+            padding: 2rem 3rem;
+            margin-left: 280px;
+            max-width: 100%;
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin: 1rem 0 1.5rem 0;
+            color: var(--primary-color);
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem 0;
+            color: var(--text-color);
+        }
+        
+        h3, h4, h5, h6 {
+            margin: 1rem 0;
+            color: var(--text-color);
+        }
+        
+        p {
+            margin: 1rem 0;
+        }
+        
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+            color: #1d4ed8;
+        }
+        
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        nav li {
+            margin: 0.75rem 0;
+            padding: 0.25rem 0;
+        }
+        
+        nav a {
+            display: block;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        nav a:hover {
+            background: rgba(37, 99, 235, 0.1);
+            text-decoration: none;
+        }
+        
+        pre {
+            background: var(--code-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        code {
+            font-family: "JetBrains Mono", Consolas, Monaco, "Andale Mono", monospace;
+            font-size: 0.9em;
+        }
+        
+        :not(pre) > code {
+            background: #f3f4f6;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            color: #e06c75;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1.5rem 0;
+            background: white;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        
+        th {
+            background: var(--nav-bg);
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        blockquote {
+            border-left: 4px solid var(--primary-color);
+            margin: 1.5rem 0;
+            padding: 1rem 1.5rem;
+            background: var(--nav-bg);
+            border-radius: 0 8px 8px 0;
+        }
+        
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        li {
+            margin: 0.5rem 0;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: block;
+            }
+            
+            nav {
+                width: 100%;
+                max-width: 300px;
+                transform: translateX(-100%);
+            }
+            
+            nav.active {
+                transform: translateX(0);
+            }
+            
+            main {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .nav-toggle.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+
+            .nav-toggle.active span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .nav-toggle.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(5px, -5px);
+            }
+
+            h1 {
+                font-size: 1.75rem;
+                margin: 0.75rem 0 1rem 0;
+            }
+
+            h2 {
+                font-size: 1.35rem;
+            }
+
+            pre {
+                margin: 1rem -1rem;
+                border-radius: 0;
+            }
+
+            blockquote {
+                margin: 1rem -1rem;
+                border-radius: 0;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="nav-toggle" aria-label="切换导航菜单">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="container">
+        <nav>
+            <h1>文档导航</h1>
+            <ul>
+                <li><a href="https://openaispace.github.io/ai-trend-publish/dingtalk-webhook-guide.html">钉钉群机器人 Webhook 配置指南</a></li>
+<li><a href="https://openaispace.github.io/ai-trend-publish/json-rpc-api.html">工作流手动触发 API</a></li>
+            </ul>
+        </nav>
+        <main>
+            <h1 id="工作流手动触发-api">工作流手动触发 API</h1>
+<h2 id="功能概述">功能概述</h2>
+<p>此 API 提供了手动触发工作流的能力，可以在需要时立即执行指定类型的工作流，而不需要等待定时任务。</p>
+<h2 id="接口信息">接口信息</h2>
+<ul>
+<li><strong>接口地址</strong>: <code>http://localhost:8000/api/workflow</code></li>
+<li><strong>请求方式</strong>: POST</li>
+<li><strong>数据格式</strong>: JSON-RPC 2.0</li>
+<li><strong>Content-Type</strong>: <code>application/json</code></li>
+<li><strong>Authorization</strong>: Bearer Token</li>
+</ul>
+<h2 id="认证方式">认证方式</h2>
+<p>API 使用 Bearer Token 认证机制。需要在请求头中添加 <code>Authorization</code> 字段：</p>
+<pre class="shiki one-dark-pro" style="background-color:#282c34;color:#abb2bf" tabindex="0"><code><span class="line"><span>Authorization: Bearer your-api-key</span></span></code></pre>
+<p>其中 <code>your-api-key</code> 需要替换为实际的 API 密钥。API 密钥可以在环境变量 <code>SERVER_API_KEY</code> 中配置。</p>
+<h2 id="快速开始">快速开始</h2>
+<h3 id="基本调用示例">基本调用示例</h3>
+<pre class="shiki one-dark-pro" style="background-color:#282c34;color:#abb2bf" tabindex="0"><code><span class="line"><span style="color:#61AFEF">curl</span><span style="color:#D19A66"> -X</span><span style="color:#98C379"> POST</span><span style="color:#98C379"> http://localhost:8000/api/workflow</span><span style="color:#56B6C2"> \</span></span>
+<span class="line"><span style="color:#D19A66">  -H</span><span style="color:#98C379"> "Content-Type: application/json"</span><span style="color:#56B6C2"> \</span></span>
+<span class="line"><span style="color:#D19A66">  -H</span><span style="color:#98C379"> "Authorization: Bearer your-api-key"</span><span style="color:#56B6C2"> \</span></span>
+<span class="line"><span style="color:#D19A66">  -d</span><span style="color:#98C379"> '{</span></span>
+<span class="line"><span style="color:#98C379">    "jsonrpc": "2.0",</span></span>
+<span class="line"><span style="color:#98C379">    "method": "triggerWorkflow",</span></span>
+<span class="line"><span style="color:#98C379">    "params": {</span></span>
+<span class="line"><span style="color:#98C379">      "workflowType": "weixin-article-workflow"</span></span>
+<span class="line"><span style="color:#98C379">    },</span></span>
+<span class="line"><span style="color:#98C379">    "id": 1</span></span>
+<span class="line"><span style="color:#98C379">  }'</span></span></code></pre>
+<h3 id="请求参数说明">请求参数说明</h3>
+<pre class="shiki one-dark-pro" style="background-color:#282c34;color:#abb2bf" tabindex="0"><code><span class="line"><span style="color:#ABB2BF">{</span></span>
+<span class="line"><span style="color:#E06C75">    "jsonrpc"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"2.0"</span><span style="color:#ABB2BF">,           </span><span style="color:#7F848E;font-style:italic">// JSON-RPC 协议版本，固定为 "2.0"</span></span>
+<span class="line"><span style="color:#E06C75">    "method"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"triggerWorkflow"</span><span style="color:#ABB2BF">, </span><span style="color:#7F848E;font-style:italic">// 方法名，固定为 "triggerWorkflow"</span></span>
+<span class="line"><span style="color:#E06C75">    "params"</span><span style="color:#ABB2BF">: {</span></span>
+<span class="line"><span style="color:#E06C75">      "workflowType"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"weixin-article-workflow"</span><span style="color:#7F848E;font-style:italic">  // 要触发的工作流类型</span></span>
+<span class="line"><span style="color:#ABB2BF">    },</span></span>
+<span class="line"><span style="color:#E06C75">    "id"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">1</span><span style="color:#7F848E;font-style:italic">                     // 请求标识，可以是数字或字符串</span></span>
+<span class="line"><span style="color:#ABB2BF">}</span></span></code></pre>
+<h3 id="支持的工作流类型">支持的工作流类型</h3>
+<table>
+<thead>
+<tr>
+<th>工作流类型</th>
+<th>说明</th>
+<th>执行内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>weixin-article-workflow</code></td>
+<td>微信文章工作流</td>
+<td>抓取并发布最新的AI相关文章</td>
+</tr>
+<tr>
+<td><code>weixin-aibench-workflow</code></td>
+<td>AI Bench工作流</td>
+<td>生成并发布AI模型评测报告</td>
+</tr>
+<tr>
+<td><code>weixin-hellogithub-workflow</code></td>
+<td>HelloGithub工作流</td>
+<td>推送优质GitHub项目推荐</td>
+</tr>
+</tbody></table>
+<h3 id="响应示例">响应示例</h3>
+<p>成功响应：</p>
+<pre class="shiki one-dark-pro" style="background-color:#282c34;color:#abb2bf" tabindex="0"><code><span class="line"><span style="color:#ABB2BF">{</span></span>
+<span class="line"><span style="color:#E06C75">    "jsonrpc"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"2.0"</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#E06C75">    "result"</span><span style="color:#ABB2BF">: {</span></span>
+<span class="line"><span style="color:#E06C75">        "success"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">true</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#E06C75">        "message"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"工作流 weixin-article-workflow 已成功触发"</span></span>
+<span class="line"><span style="color:#ABB2BF">    },</span></span>
+<span class="line"><span style="color:#E06C75">    "id"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">1</span></span>
+<span class="line"><span style="color:#ABB2BF">}</span></span></code></pre>
+<p>认证失败响应：</p>
+<pre class="shiki one-dark-pro" style="background-color:#282c34;color:#abb2bf" tabindex="0"><code><span class="line"><span style="color:#ABB2BF">{</span></span>
+<span class="line"><span style="color:#E06C75">    "jsonrpc"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"2.0"</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#E06C75">    "error"</span><span style="color:#ABB2BF">: {</span></span>
+<span class="line"><span style="color:#E06C75">        "code"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">-32001</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#E06C75">        "message"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"未授权的访问"</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#E06C75">        "data"</span><span style="color:#ABB2BF">: {</span></span>
+<span class="line"><span style="color:#E06C75">            "error"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"缺少有效的 Authorization 请求头"</span></span>
+<span class="line"><span style="color:#ABB2BF">        }</span></span>
+<span class="line"><span style="color:#ABB2BF">    }</span></span>
+<span class="line"><span style="color:#ABB2BF">}</span></span></code></pre>
+<p>无效工作流类型响应：</p>
+<pre class="shiki one-dark-pro" style="background-color:#282c34;color:#abb2bf" tabindex="0"><code><span class="line"><span style="color:#ABB2BF">{</span></span>
+<span class="line"><span style="color:#E06C75">    "jsonrpc"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"2.0"</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#E06C75">    "error"</span><span style="color:#ABB2BF">: {</span></span>
+<span class="line"><span style="color:#E06C75">        "code"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">-32602</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#E06C75">        "message"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"无效的工作流类型"</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#E06C75">        "data"</span><span style="color:#ABB2BF">: {</span></span>
+<span class="line"><span style="color:#E06C75">            "availableWorkflows"</span><span style="color:#ABB2BF">: [</span></span>
+<span class="line"><span style="color:#98C379">                "weixin-article-workflow"</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#98C379">                "weixin-aibench-workflow"</span><span style="color:#ABB2BF">,</span></span>
+<span class="line"><span style="color:#98C379">                "weixin-hellogithub-workflow"</span></span>
+<span class="line"><span style="color:#ABB2BF">            ]</span></span>
+<span class="line"><span style="color:#ABB2BF">        }</span></span>
+<span class="line"><span style="color:#ABB2BF">    },</span></span>
+<span class="line"><span style="color:#E06C75">    "id"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">1</span></span>
+<span class="line"><span style="color:#ABB2BF">}</span></span></code></pre>
+<h2 id="错误处理">错误处理</h2>
+<table>
+<thead>
+<tr>
+<th>错误代码</th>
+<th>说明</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-32001</td>
+<td>未授权的访问</td>
+<td>检查 Authorization 请求头是否正确设置</td>
+</tr>
+<tr>
+<td>-32600</td>
+<td>无效的请求</td>
+<td>检查请求格式是否符合JSON-RPC 2.0规范</td>
+</tr>
+<tr>
+<td>-32601</td>
+<td>方法不存在</td>
+<td>确认method是否为&quot;triggerWorkflow&quot;</td>
+</tr>
+<tr>
+<td>-32602</td>
+<td>无效的参数</td>
+<td>检查workflowType是否为支持的类型</td>
+</tr>
+<tr>
+<td>-32603</td>
+<td>内部错误</td>
+<td>查看服务器日志了解具体错误原因</td>
+</tr>
+</tbody></table>
+<h2 id="环境变量配置">环境变量配置</h2>
+<p>在 <code>.env</code> 文件中添加以下配置：</p>
+<pre class="shiki one-dark-pro" style="background-color:#282c34;color:#abb2bf" tabindex="0"><code><span class="line"><span style="color:#7F848E;font-style:italic"># API 鉴权配置</span></span>
+<span class="line"><span style="color:#E06C75">SERVER_API_KEY</span><span style="color:#56B6C2">=</span><span style="color:#98C379">your-api-key</span><span style="color:#7F848E;font-style:italic">  # 替换为您的实际API密钥</span></span></code></pre>
+<h2 id="更多信息">更多信息</h2>
+<p>完整的JSON-RPC协议规范请参考：<a href="https://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a> </p>
+
+        </main>
+    </div>
+    <script>
+        // 移动端导航切换
+        const navToggle = document.querySelector('.nav-toggle');
+        const nav = document.querySelector('nav');
+        
+        navToggle.addEventListener('click', () => {
+            nav.classList.toggle('active');
+            navToggle.classList.toggle('active');
+        });
+
+        // 点击导航链接时自动关闭导航菜单
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    nav.classList.remove('active');
+                    navToggle.classList.remove('active');
+                }
+            });
+        });
+
+        // 点击内容区域时关闭导航菜单
+        document.querySelector('main').addEventListener('click', () => {
+            if (window.innerWidth <= 768 && nav.classList.contains('active')) {
+                nav.classList.remove('active');
+                navToggle.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -13,7 +13,7 @@ export enum WorkflowType {
   WeixinHelloGithub = "weixin-hellogithub-workflow",
 }
 
-function getWorkflow(type: WorkflowType): WorkflowEntrypoint {
+export function getWorkflow(type: WorkflowType): WorkflowEntrypoint {
   switch (type) {
     case WorkflowType.WeixinArticle:
       return new WeixinArticleWorkflow({
