@@ -99,6 +99,11 @@ deno task build:all
   - 任务执行状态通知
   - 错误告警
 
+- 📰 **RSS 每日摘要 (LLM 增强)**: 自动从配置的 RSSHub 源抓取内容，**利用大语言模型 (LLM) 对过去指定小时数（默认为24小时）内的文章进行智能分析和综合，生成富有洞察力的 Markdown 格式每日摘要**。可用于高效获取来自不同来源的定制化信息精华。
+  - 通过 `.env` 文件中的 `RSS_DAILY_DIGEST_FEEDS` (RSSHub 路径的 JSON 数组)、`RSS_DAILY_DIGEST_HOURS_AGO` 变量来配置 RSS 源和回顾周期，并可通过 `RSS_DAILY_DIGEST_LLM_PROVIDER` 指定摘要生成所用的 LLM。
+  - 此工作流程可以设置为每日定时运行。关于如何启用和调度，请参考项目的定时任务设置（例如 `src/controllers/cron.ts` 文件）或工作流程触发机制。
+      - 高级用户或开发者在直接触发此工作流时，还可以传递参数以覆盖默认配置，例如指定特定的 RSS 源列表、回顾周期、LLM 提供者或输出行为（如保存到文件）。
+
 ## 📝 文章模板
 
 TrendPublish 提供了多种精美的文章模板。查看
