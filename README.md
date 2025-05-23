@@ -46,6 +46,10 @@ cd ai-trend-publish
 ```bash
 cp .env.example .env
 # 编辑 .env 文件配置必要的环境变量
+# Key environment variables include API keys for various AI services.
+# For Jina AI functionalities (scraping, search, embeddings, reranking),
+# ensure JINA_API_KEY is set. See the .env.example file and the
+# Jina Integration Guide for more details.
 ```
 
 ### 4. 开发和运行
@@ -79,12 +83,14 @@ deno task build:all
   - Twitter/X 内容抓取
   - 网站内容抓取 (基于 FireCrawl)
   - 支持自定义数据源配置
+  - Advanced scraping and search via Jina AI
 
 - 🧠 AI 智能处理
 
   - 使用 DeepseekAI Together 千问 万象 讯飞 进行内容总结
   - 关键信息提取
   - 智能标题生成
+  - Text embeddings and reranking via Jina AI
 
 - 📢 自动发布
 
@@ -136,10 +142,11 @@ TrendPublish 提供了多种精美的文章模板。查看
 ## 🛠 技术栈
 
 - **运行环境**: Deno + TypeScript
-- **AI 服务**: DeepseekAI Together 千问 万象 讯飞
+- **AI 服务**: DeepseekAI Together 千问 万象 讯飞 Jina AI (see [Integration Guide](docs/jina_integration_guide.md))
 - **数据源**:
   - Twitter/X API
   - FireCrawl
+  - Jina AI (for scraping and search, see [Integration Guide](docs/jina_integration_guide.md))
 - **模板引擎**: EJS
 - **开发工具**:
   - Deno
@@ -165,11 +172,17 @@ git clone https://github.com/OpenAISpace/ai-trend-publish
 ```bash
 cp .env.example .env
 # 编辑 .env 文件配置必要的环境变量
+# Key environment variables include API keys for various AI services.
+# For Jina AI functionalities (scraping, search, embeddings, reranking),
+# ensure JINA_API_KEY is set. See the .env.example file and the
+# Jina Integration Guide (docs/jina_integration_guide.md) for more details.
 ```
 
 ## ⚙️ 环境变量配置
 
 在 `.env` 文件中配置必要的环境变量：
+
+(Refer to `.env.example` for a comprehensive list of environment variables. For details on Jina AI specific setup, see the [Jina Integration Guide](docs/jina_integration_guide.md)).
 
 ## ⚠️ 配置IP白名单
 

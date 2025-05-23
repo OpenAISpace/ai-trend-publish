@@ -44,7 +44,8 @@ export interface EmbeddingResult {
 export enum EmbeddingProviderType {
   OPENAI = "OPENAI",
   DASHSCOPE = "DASHSCOPE",
-  CUSTOM = "CUSTOM"
+  CUSTOM = "CUSTOM",
+  JINA = "JINA" // Added Jina
 }
 
 /**
@@ -54,4 +55,5 @@ export interface EmbeddingProviderTypeMap {
   [EmbeddingProviderType.OPENAI]: import("../embedding/openai-compatible-embedding.ts").OpenAICompatibleEmbedding;
   [EmbeddingProviderType.DASHSCOPE]: import("../embedding/openai-compatible-embedding.ts").OpenAICompatibleEmbedding;
   [EmbeddingProviderType.CUSTOM]: import("../embedding/openai-compatible-embedding.ts").OpenAICompatibleEmbedding;
+  [EmbeddingProviderType.JINA]: import("../embedding/jina/jina.embedding.ts").JinaEmbeddingProvider; // Added Jina
 } 
