@@ -1,5 +1,6 @@
 import { EmbeddingProvider, EmbeddingProviderType, EmbeddingProviderTypeMap } from "@src/providers/interfaces/embedding.interface.ts";
 import { OpenAICompatibleEmbedding } from "@src/providers/embedding/openai-compatible-embedding.ts";
+import { JinaEmbeddingProvider } from "./jina/jina.embedding.ts"; // Corrected path
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 
 /**
@@ -107,6 +108,8 @@ export class EmbeddingFactory {
         return new OpenAICompatibleEmbedding("DASHSCOPE_", this.configManager, config.model);
       case EmbeddingProviderType.CUSTOM:
         return new OpenAICompatibleEmbedding("CUSTOM_", this.configManager, config.model);
+      case EmbeddingProviderType.JINA:
+        return new JinaEmbeddingProvider({ model: config.model }); // Pass model to Jina provider
       default:
         throw new Error(`不支持的 Embedding Provider 类型: ${config.providerType}`);
     }
