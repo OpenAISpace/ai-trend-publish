@@ -1,12 +1,14 @@
-import ejs from "npm:ejs";
+import ejs from "ejs";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import { join } from "node:path";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
+import { existsSync, statSync, readFileSync } from "fs";
+import { cwd, platform } from "process";
 
 const logger = new Logger("base-template-renderer");
 
 /**
- * 基础模板渲染器类
+ * 基础模板渲染器类（Bun 版本）
  */
 export abstract class BaseTemplateRenderer<T extends ejs.Data> {
   protected templates: { [key: string]: string } = {};
@@ -39,58 +41,36 @@ export abstract class BaseTemplateRenderer<T extends ejs.Data> {
    * @returns 模板内容
    */
   protected async getTemplateContent(templatePath: string): Promise<string> {
-    const decoder = new TextDecoder("utf-8");
-
-    // 1. 首先尝试从exe内部资源加载
     try {
-      // 使用 Deno.stat 检查资源是否存在
-      logger.info("import.meta.dirname", import.meta.dirname);
-      const stat = await Deno.stat(import.meta.dirname + templatePath);
-      if (stat.isFile) {
-        const bundledTemplate = await Deno.readFile(
-          import.meta.dirname + templatePath,
-        );
-        return decoder.decode(bundledTemplate);
+      // 构建相对于当前模块的模板文件路径
+      let baseDir = "";
+      
+      // 尝试使用 import.meta.url 获取当前模块目录
+      if (typeof import.meta !== "undefined" && import.meta.url) {
+        baseDir = new URL(".", import.meta.url).pathname;
+        // Windows 路径处理
+        if (platform === "win32" && baseDir.startsWith("/")) {
+          baseDir = baseDir.substring(1);
+        }
+      } else {
+        // 回退到相对于工作目录的路径
+        baseDir = join(cwd(), "src/modules/render/weixin");
       }
+      
+      const fullPath = join(baseDir, templatePath);
+      logger.info(`尝试加载模板文件: ${fullPath}`);
+      
+      if (existsSync(fullPath) && statSync(fullPath).isFile()) {
+        const fileContent = readFileSync(fullPath, "utf-8");
+        logger.info(`成功加载模板文件: ${templatePath}`);
+        return fileContent;
+      }
+      
+      throw new Error(`模板文件不存在: ${fullPath}`);
     } catch (error) {
-      logger.error("从exe内部加载模板文件失败，尝试其他方式:", error);
+      logger.error(`加载模板文件失败: ${templatePath}`, error);
+      throw new Error(`无法加载模板文件: ${templatePath}\n错误: ${error}`);
     }
-
-    // 2. 尝试使用相对于当前工作目录的路径（开发时使用）
-    try {
-      const absolutePath = join(Deno.cwd(), templatePath);
-      const fileContent = Deno.readFileSync(absolutePath);
-      if (fileContent) {
-        return decoder.decode(fileContent);
-      }
-    } catch (error) {
-      logger.error("从工作目录加载模板文件失败:", error);
-    }
-
-    // 3. 最后尝试从可执行文件目录加载
-    try {
-      const execPath = Deno.execPath();
-      const execDir = execPath.substring(
-        0,
-        execPath.lastIndexOf(Deno.build.os === "windows" ? "\\" : "/"),
-      );
-      const resourcePath = join(execDir, templatePath);
-      const fileContent = Deno.readFileSync(resourcePath);
-      if (fileContent) {
-        return decoder.decode(fileContent);
-      }
-    } catch (error2) {
-      logger.error("从可执行文件目录加载失败:", error2);
-    }
-
-    // 如果所有尝试都失败，抛出错误
-    throw new Error(
-      `无法加载模板文件: ${templatePath}，请确保模板文件存在且路径正确。
-请检查以下路径：
-1. ${templatePath} (exe内部)
-2. ${join(Deno.cwd(), templatePath)} (工作目录)
-3. ${join(Deno.execPath(), "..", templatePath)} (可执行文件目录)`,
-    );
   }
 
   /**
@@ -100,7 +80,7 @@ export abstract class BaseTemplateRenderer<T extends ejs.Data> {
 
   /**
    * 从配置中获取模板类型
-   * @returns 配置的模板类型或默认值
+   * @returns 配置的模板类型或默认
    */
   protected async getTemplateTypeFromConfig(): Promise<string> {
     try {
@@ -133,7 +113,7 @@ export abstract class BaseTemplateRenderer<T extends ejs.Data> {
   /**
    * 渲染模板
    * @param data 渲染数据
-   * @param templateType 模板类型，或者 'config'（从配置获取）或 'random'（随机选择）
+   * @param templateType 模板类型，或'config'（从配置获取）或 'random'（随机选择）
    * @returns 渲染后的 HTML
    */
   public async render(

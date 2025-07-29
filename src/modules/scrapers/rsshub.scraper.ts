@@ -1,8 +1,8 @@
 /**
- * RSSHub API 客户端
+ * RSSHub API 客户�?
  *
- * 这个模块提供了一个简单易用的 RSSHub API 客户端，支持 RSSHub 的所有通用参数，
- * 并内置了缓存机制以提高性能和减轻 RSSHub 服务器负载。
+ * 这个模块提供了一个简单易用的 RSSHub API 客户端，支持 RSSHub 的所有通用参数�?
+ * 并内置了缓存机制以提高性能和减�?RSSHub 服务器负载�?
  *
  * 基本用法:
  * ```typescript
@@ -18,10 +18,10 @@
  * const jsonFeed = await request("/v2/bing/daily-wallpaper").json();
  * ```
  *
- * 处理不同格式的数据:
+ * 处理不同格式的数�?
  * ```typescript
- * // RSS 和 Atom 格式是 XML 数据，可能需要进一步解析
- * import { XMLParser } from "npm:fast-xml-parser";
+ * // RSS �?Atom 格式�?XML 数据，可能需要进一步解�?
+ * import { XMLParser } from "fast-xml-parser";
  *
  * const parser = new XMLParser({
  *   ignoreAttributes: false,
@@ -41,23 +41,23 @@
  * ```typescript
  * // 过滤包含特定关键词的内容
  * const filteredFeed = await request("/weibo/user/1195230310")
- *   .filter("科技")           // 只包含"科技"相关内容
- *   .filterOut("广告")        // 排除包含"广告"的内容
+ *   .filter("科技")           // 只包�?科技"相关内容
+ *   .filterOut("广告")        // 排除包含"广告"的内�?
  *   .get();
  *
  * // 更精细的过滤控制
  * const feed = await request("/some/path")
- *   .filterTitle("标题关键词")   // 仅过滤标题
- *   .filterDescription("描述关键词") // 仅过滤描述
- *   .filterAuthor("作者名")     // 过滤作者
- *   .filterCategory("分类名")   // 过滤分类
+ *   .filterTitle("标题关键�?)   // 仅过滤标�?
+ *   .filterDescription("描述关键�?) // 仅过滤描�?
+ *   .filterAuthor("作者名")     // 过滤作�?
+ *   .filterCategory("分类�?)   // 过滤分类
  *   .filterTime(3600)         // 仅显示最近一小时内的内容
  *   .get();
  * ```
  *
  * 限制条目数量:
  * ```typescript
- * // 只返回前5条内容
+ * // 只返回前5条内�?
  * const limitedFeed = await request("/zhihu/daily")
  *   .limit(5)
  *   .get();
@@ -86,10 +86,10 @@
  *
  * 缓存控制:
  * ```typescript
- * // 清除特定路径的缓存
+ * // 清除特定路径的缓�?
  * request("/some/path").clearCache();
  *
- * // 清除所有缓存
+ * // 清除所有缓�?
  * request.clearCache();
  *
  * // 配置缓存
@@ -105,18 +105,18 @@
  * // 修改 RSSHub 实例地址
  * request.config({
  *   baseURL: "https://your-rsshub-instance.com",
- *   timeout: 5000 // 5秒超时
+ *   timeout: 5000 // 5秒超�?
  * });
  * ```
  */
 
-import axios, { AxiosError } from "npm:axios";
-import { XMLParser } from "npm:fast-xml-parser";
-import LRUCache from "npm:lru-cache";
+import axios, { AxiosError } from "axios";
+import { XMLParser } from "fast-xml-parser";
+import LRUCache from "lru-cache";
 
 // 类型定义
 /**
- * RSSHub 客户端配置接口
+ * RSSHub 客户端配置接�?
  */
 interface RSSHubConfig {
   /** RSSHub 实例的基础 URL */
@@ -137,7 +137,7 @@ interface RSSHubConfig {
 interface RSSHubError extends Error {
   /** HTTP 状态码 */
   status?: number;
-  /** 请求的端点 */
+  /** 请求的端�?*/
   endpoint?: string;
 }
 
@@ -150,7 +150,7 @@ const defaultConfig: RSSHubConfig = {
   cacheSize: 100,
 };
 
-// 配置和缓存实例
+// 配置和缓存实�?
 const config = { ...defaultConfig };
 const cache = new LRUCache({
   max: config.cacheSize || 100,
@@ -164,8 +164,8 @@ const parser = new XMLParser({
 
 /**
  * 统一错误处理函数
- * @param error - 捕获的错误
- * @param endpoint - 请求的端点
+ * @param error - 捕获的错�?
+ * @param endpoint - 请求的端�?
  * @returns never - 总是抛出错误
  */
 function handleError(error: unknown, endpoint: string): never {
@@ -183,7 +183,7 @@ function handleError(error: unknown, endpoint: string): never {
 
 /**
  * 解析 RSS XML 数据
- * @param raw - 原始 XML 字符串
+ * @param raw - 原始 XML 字符�?
  * @returns 解析后的 RSS 对象
  */
 async function parseRSS(raw: string) {
@@ -204,8 +204,8 @@ class RequestSetup {
   private __params: URLSearchParams;
 
   /**
-   * 创建一个新的请求设置实例
-   * @param path - RSSHub 路径，例如 "/v2/bing/daily-wallpaper"
+   * 创建一个新的请求设置实�?
+   * @param path - RSSHub 路径，例�?"/v2/bing/daily-wallpaper"
    */
   constructor(path: string) {
     this.__path = path;
@@ -214,11 +214,11 @@ class RequestSetup {
   }
 
   /**
-   * 添加内容过滤器，过滤标题和描述
+   * 添加内容过滤器，过滤标题和描�?
    * @param pattern - 过滤模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 只返回包含"科技"的内容
+   * // 只返回包�?科技"的内�?
    * request("/path").filter("科技").get();
    */
   filter(pattern: string): this {
@@ -227,11 +227,11 @@ class RequestSetup {
   }
 
   /**
-   * 添加标题过滤器
+   * 添加标题过滤�?
    * @param pattern - 过滤模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 只返回标题包含"新闻"的内容
+   * // 只返回标题包�?新闻"的内�?
    * request("/path").filterTitle("新闻").get();
    */
   filterTitle(pattern: string): this {
@@ -240,11 +240,11 @@ class RequestSetup {
   }
 
   /**
-   * 添加描述过滤器
+   * 添加描述过滤�?
    * @param pattern - 过滤模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 只返回描述包含"重要"的内容
+   * // 只返回描述包�?重要"的内�?
    * request("/path").filterDescription("重要").get();
    */
   filterDescription(pattern: string): this {
@@ -255,7 +255,7 @@ class RequestSetup {
   /**
    * 添加作者过滤器
    * @param pattern - 过滤模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
    * // 只返回特定作者的内容
    * request("/path").filterAuthor("张三").get();
@@ -266,12 +266,12 @@ class RequestSetup {
   }
 
   /**
-   * 添加分类过滤器
+   * 添加分类过滤�?
    * @param pattern - 过滤模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
    * // 只返回特定分类的内容
-   * request("/path").filterCategory("技术").get();
+   * request("/path").filterCategory("技�?).get();
    */
   filterCategory(pattern: string): this {
     this.__params.set("filter_category", pattern);
@@ -279,11 +279,11 @@ class RequestSetup {
   }
 
   /**
-   * 添加时间过滤器，只返回指定时间范围内的内容
-   * @param seconds - 时间范围（秒）
-   * @returns this - 返回实例自身，支持链式调用
+   * 添加时间过滤器，只返回指定时间范围内的内�?
+   * @param seconds - 时间范围（秒�?
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 只返回最近一小时的内容
+   * // 只返回最近一小时的内�?
    * request("/path").filterTime(3600).get();
    */
   filterTime(seconds: number): this {
@@ -292,11 +292,11 @@ class RequestSetup {
   }
 
   /**
-   * 添加排除过滤器，排除标题和描述中包含特定内容的条目
+   * 添加排除过滤器，排除标题和描述中包含特定内容的条�?
    * @param pattern - 排除模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 排除包含"广告"的内容
+   * // 排除包含"广告"的内�?
    * request("/path").filterOut("广告").get();
    */
   filterOut(pattern: string): this {
@@ -305,11 +305,11 @@ class RequestSetup {
   }
 
   /**
-   * 添加标题排除过滤器
+   * 添加标题排除过滤�?
    * @param pattern - 排除模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 排除标题包含"公告"的内容
+   * // 排除标题包含"公告"的内�?
    * request("/path").filterOutTitle("公告").get();
    */
   filterOutTitle(pattern: string): this {
@@ -318,11 +318,11 @@ class RequestSetup {
   }
 
   /**
-   * 添加描述排除过滤器
+   * 添加描述排除过滤�?
    * @param pattern - 排除模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 排除描述包含"推广"的内容
+   * // 排除描述包含"推广"的内�?
    * request("/path").filterOutDescription("推广").get();
    */
   filterOutDescription(pattern: string): this {
@@ -333,7 +333,7 @@ class RequestSetup {
   /**
    * 添加作者排除过滤器
    * @param pattern - 排除模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
    * // 排除特定作者的内容
    * request("/path").filterOutAuthor("李四").get();
@@ -344,11 +344,11 @@ class RequestSetup {
   }
 
   /**
-   * 添加分类排除过滤器
+   * 添加分类排除过滤�?
    * @param pattern - 排除模式，支持正则表达式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 排除特定分类的内容
+   * // 排除特定分类的内�?
    * request("/path").filterOutCategory("娱乐").get();
    */
   filterOutCategory(pattern: string): this {
@@ -357,11 +357,11 @@ class RequestSetup {
   }
 
   /**
-   * 设置过滤是否区分大小写
-   * @param sensitive - 是否区分大小写，默认为 true
-   * @returns this - 返回实例自身，支持链式调用
+   * 设置过滤是否区分大小�?
+   * @param sensitive - 是否区分大小写，默认�?true
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 不区分大小写的过滤
+   * // 不区分大小写的过�?
    * request("/path").filter("news").filterCaseSensitive(false).get();
    */
   filterCaseSensitive(sensitive: boolean): this {
@@ -370,11 +370,11 @@ class RequestSetup {
   }
 
   /**
-   * 设置返回条目的最大数量
+   * 设置返回条目的最大数�?
    * @param count - 最大条目数
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 只返回最多10条内容
+   * // 只返回最�?0条内�?
    * request("/path").limit(10).get();
    */
   limit(count: number): this {
@@ -383,9 +383,9 @@ class RequestSetup {
   }
 
   /**
-   * 设置是否按发布时间排序
+   * 设置是否按发布时间排�?
    * @param sort - 是否排序，默认为 true
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
    * // 不对内容进行排序
    * request("/path").sorted(false).get();
@@ -397,7 +397,7 @@ class RequestSetup {
 
   /**
    * 设置全文输出模式
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
    * // 获取全文内容
    * request("/path").fulltext().get();
@@ -409,8 +409,8 @@ class RequestSetup {
 
   /**
    * 设置输出格式
-   * @param type - 输出格式类型："rss", "atom", "json" 或 "rss3"
-   * @returns this - 返回实例自身，支持链式调用
+   * @param type - 输出格式类型�?rss", "atom", "json" �?"rss3"
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
    * // 默认输出 RSS 2.0
    * const feed = await request("/jianshu/home").get();
@@ -427,10 +427,10 @@ class RequestSetup {
    * // 输出 RSS3
    * const rss3Feed = await request("/abc").format("rss3").get();
    *
-   * // 和其他参数一起使用
+   * // 和其他参数一起使�?
    * const filteredFeed = await request("/bilibili/user/coin/2267573")
    *   .format("atom")
-   *   .filter("微小微|赤九玖|暴走大事件")
+   *   .filter("微小微|赤九玖|暴走大事�?)
    *   .get();
    */
   format(type: "rss" | "atom" | "json" | "rss3"): this {
@@ -440,8 +440,8 @@ class RequestSetup {
 
   /**
    * 设置简繁体转换
-   * @param type - 转换类型："s2t"(简体转繁体) 或 "t2s"(繁体转简体)
-   * @returns this - 返回实例自身，支持链式调用
+   * @param type - 转换类型�?s2t"(简体转繁体) �?"t2s"(繁体转简�?
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
    * // 简体转繁体
    * request("/path").opencc("s2t").get();
@@ -452,11 +452,11 @@ class RequestSetup {
   }
 
   /**
-   * 设置输出简讯
+   * 设置输出简�?
    * @param wordCount - 简讯字数，必须大于等于100
-   * @returns this - 返回实例自身，支持链式调用
+   * @returns this - 返回实例自身，支持链式调�?
    * @example
-   * // 输出200字的简讯
+   * // 输出200字的简�?
    * request("/path").brief(200).get();
    */
   brief(wordCount: number): this {
@@ -482,7 +482,7 @@ class RequestSetup {
 
     const cacheKey = `${this.__cacheKey}${suffix}:${params}`;
 
-    // 检查缓存
+    // 检查缓�?
     if (config.enableCache) {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
@@ -508,13 +508,13 @@ class RequestSetup {
 
   /**
    * 获取 RSS 格式数据（默认方法）
-   * @returns 根据指定格式返回相应的数据
+   * @returns 根据指定格式返回相应的数�?
    * @example
-   * // 获取默认的 RSS 2.0 格式数据
+   * // 获取默认�?RSS 2.0 格式数据
    * const feed = await request("/jianshu/home").get();
    */
   get() {
-    // 如果没有指定格式，默认使用 RSS 2.0
+    // 如果没有指定格式，默认使�?RSS 2.0
     if (!this.__params.has("format")) {
       this.__params.set("format", "rss");
     }
@@ -571,9 +571,9 @@ class RequestSetup {
   }
 
   /**
-   * 清除此路径的所有缓存
+   * 清除此路径的所有缓�?
    * @example
-   * // 清除特定路径的缓存
+   * // 清除特定路径的缓�?
    * request("/path").clearCache();
    */
   clearCache() {
@@ -590,8 +590,8 @@ class RequestSetup {
 }
 
 /**
- * 创建一个 RSSHub 请求
- * @param path - RSSHub 路径，例如 "/v2/bing/daily-wallpaper"
+ * 创建一�?RSSHub 请求
+ * @param path - RSSHub 路径，例�?"/v2/bing/daily-wallpaper"
  * @returns RequestSetup 实例
  * @example
  * // 基本用法
@@ -609,10 +609,10 @@ function request(path: string) {
 }
 
 /**
- * 更新 RSSHub 客户端配置
+ * 更新 RSSHub 客户端配�?
  * @param values - 部分配置对象
  * @example
- * // 修改基础 URL 和超时设置
+ * // 修改基础 URL 和超时设�?
  * request.config({
  *   baseURL: "https://your-rsshub-instance.com",
  *   timeout: 5000
@@ -633,9 +633,9 @@ request.config = function (values: Partial<RSSHubConfig>) {
 };
 
 /**
- * 清除所有缓存
+ * 清除所有缓�?
  * @example
- * // 清除所有缓存
+ * // 清除所有缓�?
  * request.clearCache();
  */
 request.clearCache = function () {

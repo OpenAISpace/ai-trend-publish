@@ -1,9 +1,9 @@
 import { BaseTemplateRenderer } from "@src/modules/render/weixin/base.renderer.ts";
 import { AIGithubItemDetail } from "@src/modules/render/weixin/interfaces/aigithub.type.ts";
-import ejs from "npm:ejs";
+import ejs from "ejs";
 
 /**
- * HelloGithub模板渲染器
+ * HelloGithub模板渲染�?
  */
 export class HelloGithubTemplateRenderer
   extends BaseTemplateRenderer<AIGithubItemDetail[]> {
@@ -18,7 +18,7 @@ export class HelloGithubTemplateRenderer
   protected async loadTemplates(): Promise<void> {
     this.templates = {
       default: await this.getTemplateContent(
-        "/templates/hellogithub.ejs",
+        "templates/hellogithub.ejs",
       ),
     };
   }

@@ -127,7 +127,7 @@ const modelData = {
   },
 } as { [key: string]: ModelPerformance };
 
-// 保存文件的工具函数
+// 保存文件的工具函�?
 async function saveToFile(content: string, filePath: string): Promise<void> {
   const dir = path.dirname(filePath);
 
@@ -147,12 +147,12 @@ async function saveToFile(content: string, filePath: string): Promise<void> {
 
 async function main() {
   try {
-    // 使用渲染器处理数据
+    // 使用渲染器处理数�?
     const renderer = new AIBenchTemplateRenderer();
     const templateData = renderer.transformData(modelData);
     const htmlContent = await renderer.render(templateData);
 
-    // 保存到文件
+    // 保存到文�?
     const outputPath = path.join(
       __dirname,
       "../../../temp/aibench_preview.html",
@@ -160,12 +160,12 @@ async function main() {
     await saveToFile(htmlContent, outputPath);
     console.log(`预览文件已生成：${outputPath}`);
 
-    // 输出一些基本信息用于验证
+    // 输出一些基本信息用于验�?
     console.log("\n=== AI模型评测数据 ===");
     console.log(`总计模型数：${templateData.globalTop10.length}`);
-    console.log("\n--- 全局排名前3名 ---");
+    console.log("\n--- 全局排名�?�?---");
     templateData.globalTop10.slice(0, 3).forEach((model, index) => {
-      console.log(`${index + 1}. ${model.name} (${model.score.toFixed(2)}分)`);
+      console.log(`${index + 1}. ${model.name} (${model.score.toFixed(2)}�?`);
     });
 
     console.log("\n--- 各项能力最高分 ---");
@@ -173,12 +173,12 @@ async function main() {
       if (category.models.length > 0) {
         const topModel = category.models[0];
         console.log(
-          `${category.name}: ${topModel.name} (${topModel.score.toFixed(2)}分)`,
+          `${category.name}: ${topModel.name} (${topModel.score.toFixed(2)}�?`,
         );
       }
     });
   } catch (error) {
-    console.error("生成预览时出错:", error);
+    console.error("生成预览时出�?", error);
   }
 }
 

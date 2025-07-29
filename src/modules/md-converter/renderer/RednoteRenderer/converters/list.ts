@@ -22,7 +22,7 @@ export const listConverter: ConverterFunc<MarkdownElement.List> = (
           `<li style="${makeStyleText(styles[MarkdownElement.ListItem])}">
             <span style="font-size: 20px;${
             makeStyleText(styles[MarkdownElement.ListItemSymbol]?.ul)
-          }">â€¢</span>
+          }">â€?/span>
             <span>${s}</span>
           </li>`,
       )

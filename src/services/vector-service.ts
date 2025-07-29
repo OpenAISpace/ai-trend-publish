@@ -172,7 +172,7 @@ export class VectorService {
       .from(vectorItems)
       .where(and(...conditions));
 
-    // 计算相似度
+    // 计算相似�?
     const similarItems = (items as VectorItem[])
       .map((item) => {
         const itemVector = item.vector;

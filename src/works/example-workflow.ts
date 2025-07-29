@@ -4,7 +4,7 @@ import {
   WorkflowEvent,
   WorkflowStep,
 } from "./workflow.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("example-workflow");
 
@@ -14,8 +14,7 @@ type Env = {
   DATABASE_URL: string;
 };
 
-// 工作流参数类型定义
-type WorkflowParams = {
+// 工作流参数类型定�?type WorkflowParams = {
   userId: string;
   taskType: string;
   metadata: Record<string, any>;
@@ -23,8 +22,7 @@ type WorkflowParams = {
 
 export class DataProcessingWorkflow
   extends WorkflowEntrypoint<Env, WorkflowParams> {
-  // 获取工作流统计信息
-  getWorkflowStats(eventId: string) {
+  // 获取工作流统计信�?  getWorkflowStats(eventId: string) {
     return this.metricsCollector.getWorkflowEventMetrics(this.env.id, eventId);
   }
 
@@ -66,8 +64,7 @@ export class DataProcessingWorkflow
       },
     );
 
-    // 等待一段时间
-    await step.sleep("cooling-period", "10 second");
+    // 等待一段时�?    await step.sleep("cooling-period", "10 second");
 
     // 第三步：保存结果（使用重试机制）
     await step.do(

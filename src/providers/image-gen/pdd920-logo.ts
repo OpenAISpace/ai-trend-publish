@@ -14,8 +14,9 @@ interface PDD920Response {
 export class PDD920LogoGenerator extends BaseImageGenerator {
   private static readonly BASE_URL = "https://api.920pdd.com/API/ceshi/wx/";
 
+  // PDD920 Logo生成器不需要刷新配置，空实现
   async refresh(): Promise<void> {
-    // PDD920 Logo生成器不需要配置
+    // 无需实现
   }
 
   /**
@@ -25,7 +26,6 @@ export class PDD920LogoGenerator extends BaseImageGenerator {
    */
   async generate(options: PDD920LogoOptions): Promise<string | Buffer> {
     try {
-      // 构建URL和参数
       const params = new URLSearchParams();
       params.append("text", options.text);
       params.append("t", options.t);
@@ -41,13 +41,13 @@ export class PDD920LogoGenerator extends BaseImageGenerator {
       }
 
       if (options.type === "json") {
-        const data = await response.json() as PDD920Response;
+        const data = (await response.json()) as PDD920Response;
         return data.url;
       } else {
         const buffer = await response.arrayBuffer();
         return Buffer.from(buffer);
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof Error) {
         throw new Error(`图片生成失败: ${error.message}`);
       }
@@ -65,9 +65,10 @@ export class PDD920LogoGenerator extends BaseImageGenerator {
     outputPath: string,
   ): Promise<void> {
     const generator = new PDD920LogoGenerator();
+    // type设为undefined，确保返回Buffer
     const result = await generator.generate({ ...options, type: undefined });
     if (Buffer.isBuffer(result)) {
-      const fs = require("fs").promises;
+      const fs = await import("fs/promises");
       await fs.writeFile(outputPath, result);
     } else {
       throw new Error("无法保存图片：生成结果不是Buffer类型");

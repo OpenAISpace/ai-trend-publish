@@ -1,6 +1,6 @@
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import rssHubRequest from "@src/modules/scrapers/rsshub.scraper.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 import { LLMFactory } from "@src/providers/llm/llm-factory.ts";
 import {
   getRssDigestSystemPrompt,
@@ -123,7 +123,7 @@ export class RssDailyDigestWorkflow extends WorkflowEntrypoint<RssDailyDigestWor
     _step: WorkflowStep, // Renamed to indicate it's not used directly in this revised structure
   ): Promise<string | void> {
     logger.info(
-      `[工作流执行开始] RSS每日摘要工作流, ID: ${this.env.id}, Event: ${event.id}`,
+      `[工作流执行开始] RSS每日摘要工作�? ID: ${this.env.id}, Event: ${event.id}`,
       event.payload,
     );
     let markdownDigest = "";
@@ -297,7 +297,7 @@ export class RssDailyDigestWorkflow extends WorkflowEntrypoint<RssDailyDigestWor
         throw error; // Re-throw to ensure workflow engine handles it as a termination
       }
 
-      logger.error(`[工作流总异常] RSS每日摘要工作流执行失败: ${message}`, error.stack);
+      logger.error(`[工作流总异常] RSS每日摘要工作流执行失�? ${message}`, error.stack);
       await this.notifier.error("RSS Daily Digest Workflow Failed Critically", message);
       throw new Error(`Workflow failed critically: ${message}`); 
     }

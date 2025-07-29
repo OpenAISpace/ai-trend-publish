@@ -29,7 +29,7 @@ async function testTemplate() {
     );
     fs.writeFileSync(outputPath, html, "utf-8");
 
-    console.log("模板渲染成功！输出文件:", outputPath);
+    console.log("模板渲染成功！输出文�?", outputPath);
   } catch (error: any) {
     console.error("模板测试失败:", error.message);
   }

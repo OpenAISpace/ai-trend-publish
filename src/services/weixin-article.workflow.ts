@@ -22,8 +22,8 @@ import {
   WorkflowStep,
 } from "@src/works/workflow.ts";
 import { WorkflowTerminateError } from "@src/works/workflow-error.ts";
-import { Logger } from "@zilla/logger";
-import ProgressBar from "jsr:@deno-library/progress";
+import { Logger } from "@src/utils/logger-adapter.ts";
+import * as cliProgress from "cli-progress";
 import { ImageGeneratorType } from "@src/providers/interfaces/image-gen.interface.ts";
 import { VectorService } from "@src/services/vector-service.ts";
 import { EmbeddingProvider } from "@src/providers/interfaces/embedding.interface.ts";
@@ -36,7 +36,7 @@ interface WeixinWorkflowEnv {
   name: string;
 }
 
-// 工作流参数类型定义
+// 工作流参数类型定�?
 interface WeixinWorkflowParams {
   sourceType?: "all" | "firecrawl" | "twitter";
   maxArticles?: number;
@@ -83,11 +83,12 @@ export class WeixinArticleWorkflow
     step: WorkflowStep,
   ): Promise<void> {
     try {
+
       logger.info(
         `[工作流开始] 开始执行微信工作流, 当前工作流实例ID: ${this.env.id} 触发事件ID: ${event.id}`,
       );
 
-      // 验证IP白名单
+      // 验证IP白名�?
       await step.do("validate-ip-whitelist", {
         retries: { limit: 3, delay: "10 second", backoff: "exponential" },
         timeout: "10 minutes",
@@ -104,9 +105,9 @@ export class WeixinArticleWorkflow
         }
         return isWhitelisted;
       });
-      await this.notifier.info("工作流开始", "开始执行内容抓取和处理");
+      await this.notifier.info("工作流开始", "开始执行内容抓取和处理")
 
-      // 获取数据源
+      // 获取数据�?
       const sourceConfigs = await step.do("fetch-sources", async () => {
         const configs = await getDataSources();
         if (!configs.firecrawl) {
@@ -134,13 +135,15 @@ export class WeixinArticleWorkflow
       }, async () => {
         const contents: ScrapedContent[] = [];
 
-        // 创建抓取进度条
-        const scrapeProgress = new ProgressBar({
-          title: "内容抓取进度",
-          total: totalSources,
-          clear: true, // 完成后清除进度条
-          display: ":title | :percent | :completed/:total | :time \n",
+        // 创建抓取进度�?
+        const scrapeProgress = new cliProgress.SingleBar({
+          format: '内容抓取进度 |{bar}| {percentage}% | {value}/{total} | {duration}s',
+          barCompleteChar: '\u2588',
+          barIncompleteChar: '\u2591',
+          hideCursor: true,
+          clearOnComplete: true
         });
+        scrapeProgress.start(totalSources, 0);
         let scrapeCompleted = 0;
         let totalArticles = 0;
 
@@ -158,10 +161,7 @@ export class WeixinArticleWorkflow
           );
           contents.push(...sourceContents);
           totalArticles += sourceContents.length;
-          await scrapeProgress.render(++scrapeCompleted, {
-            title:
-              `抓取 FireCrawl: ${source.identifier}  | 已获取文章: ${totalArticles}篇`,
-          });
+          scrapeProgress.update(++scrapeCompleted);
         }
 
         // Twitter sources
@@ -178,10 +178,7 @@ export class WeixinArticleWorkflow
           );
           contents.push(...sourceContents);
           totalArticles += sourceContents.length;
-          await scrapeProgress.render(++scrapeCompleted, {
-            title:
-              `抓取 Twitter: ${source.identifier} | 已获取文章: ${totalArticles}篇`,
-          });
+          scrapeProgress.update(++scrapeCompleted);
         }
 
         this.stats.contents = contents.length;
@@ -205,13 +202,13 @@ export class WeixinArticleWorkflow
           return allContents;
         }
 
-        // 初始化 embedding 模型
+        // 初始�?embedding 模型
         this.embeddingModel = await EmbeddingFactory.getInstance().getProvider({
           providerType: EmbeddingProviderType.DASHSCOPE,
           model: "text-embedding-v3",
         });
 
-        // 获取所有已存在的向量
+        // 获取所有已存在的向�?
         const existingVectors = await this.vectorService.getByType("article");
         this.existingVectors = existingVectors.map((v) => ({
           vector: v.vector,
@@ -228,12 +225,14 @@ export class WeixinArticleWorkflow
         }[] = [];
 
         logger.info("[向量计算] 开始批量计算内容向量");
-        const embedProgress = new ProgressBar({
-          title: "向量计算进度",
-          total: allContents.length,
-          clear: true,
-          display: ":title | :percent | :completed/:total | :time \n",
+        const embedProgress = new cliProgress.SingleBar({
+          format: '向量计算进度 |{bar}| {percentage}% | {value}/{total} | {duration}s',
+          barCompleteChar: '\u2588',
+          barIncompleteChar: '\u2591',
+          hideCursor: true,
+          clearOnComplete: true
         });
+        embedProgress.start(allContents.length, 0);
         let embedCompleted = 0;
 
         // 并行计算所有内容的embedding
@@ -252,11 +251,11 @@ export class WeixinArticleWorkflow
               });
             } catch (error) {
               logger.error(
-                `[向量计算] 计算内容 ${content.id} 的向量失败:`,
+                `[向量计算] 计算内容 ${content.id} 的向量失败`,
                 error,
               );
             }
-            await embedProgress.render(++embedCompleted);
+                          embedProgress.update(++embedCompleted);
           }),
         );
 
@@ -264,7 +263,7 @@ export class WeixinArticleWorkflow
           `[向量计算] 完成 ${contentEmbeddings.size} 个内容的向量计算`,
         );
 
-        // 过滤掉重复内容
+        // 过滤掉重复内�?
         const deduplicatedContents: ScrapedContent[] = [];
 
         for (const content of allContents) {
@@ -338,11 +337,11 @@ export class WeixinArticleWorkflow
         // 如果文章数量不足，记录警告
         if (topContents.length < maxArticles) {
           logger.warn(
-            `[内容处理] 文章数量不足，期望 ${maxArticles} 篇，实际 ${topContents.length} 篇`,
+            `[内容处理] 文章数量不足，预期 ${maxArticles} 篇，实际 ${topContents.length} 篇`,
           );
           await this.notifier.warning(
             "内容数量不足",
-            `仅获取到 ${topContents.length} 篇文章，少于预期的 ${maxArticles} 篇`,
+            `仅获取到 ${topContents.length} 篇文章，少于预期 ${maxArticles} 篇`,
           );
         }
 
@@ -351,20 +350,20 @@ export class WeixinArticleWorkflow
           JSON.stringify(topContents, null, 2),
         );
 
-        // 处理内容（润色等）
-        const processProgress = new ProgressBar({
-          title: "内容处理进度",
-          total: topContents.length,
-          clear: true,
-          display: ":title | :percent | :completed/:total | :time \n",
+          // 处理内容（润色等）
+        const processProgress = new cliProgress.SingleBar({
+          format: '内容处理进度 |{bar}| {percentage}% | {value}/{total} | {duration}s',
+          barCompleteChar: '\u2588',
+          barIncompleteChar: '\u2591',
+          hideCursor: true,
+          clearOnComplete: true
         });
+        processProgress.start(topContents.length, 0);
         let processCompleted = 0;
 
         await Promise.all(topContents.map(async (content) => {
           await this.processContent(content);
-          await processProgress.render(++processCompleted, {
-            title: `已处理: ${content.title?.slice(0, 5) || "无标题"}...`,
-          });
+          processProgress.update(++processCompleted);
         }));
 
         return topContents;
@@ -396,7 +395,7 @@ export class WeixinArticleWorkflow
           const title = await this.summarizer.generateTitle(
             processedContents.map((c) => c.title).join(" | "),
           ).then((t) => {
-            t = `${new Date().toLocaleDateString()} AI速递 | ${t}`;
+            t = `${new Date().toLocaleDateString()} AI速报 | ${t}`;
             return t.slice(0, 64);
           });
 
@@ -405,7 +404,7 @@ export class WeixinArticleWorkflow
             .getGenerator(ImageGeneratorType.ALIWANX_POSTER);
           const imageUrl = await imageGenerator.generate({
             title: title.split(" | ")[1].trim().slice(0, 30),
-            sub_title: new Date().toLocaleDateString() + " AI速递",
+            sub_title: new Date().toLocaleDateString() + " AI速报",
             prompt_text_zh: `科技前沿资讯 | 人工智能新闻 | 每日AI快报 - ${
               title.split(" | ")[1].trim().slice(0, 30)
             }`,
@@ -447,14 +446,14 @@ export class WeixinArticleWorkflow
         - 数据源: ${totalSources} 个
         - 成功: ${this.stats.success} 个
         - 失败: ${this.stats.failed} 个
-        - 内容: ${this.stats.contents} 条
-        - 重复: ${this.stats.duplicates} 条
+        - 内容: ${this.stats.contents} 个
+        - 重复: ${this.stats.duplicates} 个
         - 发布: 成功`.trim();
 
       logger.info(`[工作流完成] ${summary}`);
 
       if (this.stats.failed > 0) {
-        await this.notifier.warning("工作流完成(部分失败)", summary);
+        await this.notifier.warning("工作流完成，部分失败", summary);
       } else {
         await this.notifier.success("工作流完成", summary);
       }
@@ -468,7 +467,7 @@ export class WeixinArticleWorkflow
       }
 
       logger.error("[工作流] 执行失败:", message);
-      await this.notifier.error("工作流失败", message);
+      await this.notifier.error("工作流执行失败", message);
       throw error;
     }
   }
@@ -489,7 +488,7 @@ export class WeixinArticleWorkflow
       logger.error(`[${type}] ${source.identifier} 抓取失败:`, message);
       await this.notifier.warning(
         `${type}抓取失败`,
-        `源: ${source.identifier}\n错误: ${message}`,
+        `数据源: ${source.identifier}\n错误: ${message}`,
       );
       return [];
     }
@@ -519,7 +518,7 @@ export class WeixinArticleWorkflow
     contentVector: number[],
   ): Promise<boolean> {
     try {
-      // 在内存中计算相似度
+        // 在内存中计算相似度
       for (const existingVector of this.existingVectors) {
         if (!existingVector.vector || !contentVector) {
           continue;
@@ -530,7 +529,7 @@ export class WeixinArticleWorkflow
         );
         if (similarity >= 0.85) {
           logger.info(
-            `[去重] 发现重复内容: ${content.id}, 相似度: ${similarity}, 原内容: ${
+            `[去重] 发现重复内容: ${content.id}, 相似度 ${similarity}, 原内容 ${
               existingVector.content?.slice(0, 50)
             }...`,
           );
@@ -540,7 +539,7 @@ export class WeixinArticleWorkflow
       }
       return false;
     } catch (error) {
-      logger.error(`[去重] 检查重复失败: ${error}`);
+      logger.error(`[去重] 检查重复失�? ${error}`);
       return false;
     }
   }

@@ -1,4 +1,4 @@
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 import { MetricsCollector } from "@src/works/metrics.ts";
 import { RetryOptions, RetryUtil } from "@src/utils/retry.util.ts";
 import { WorkflowStepError, WorkflowTerminateError } from "./workflow-error.ts";
@@ -72,7 +72,7 @@ export class WorkflowStep {
           if (error instanceof WorkflowTerminateError) {
             throw error;
           }
-          // 其他错误包装为 WorkflowStepError
+          // 其他错误包装WorkflowStepError
           throw new WorkflowStepError(
             error instanceof Error ? error.message : String(error),
           );

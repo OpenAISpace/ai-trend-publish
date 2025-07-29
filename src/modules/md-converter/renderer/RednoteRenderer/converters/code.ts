@@ -1,4 +1,4 @@
-import hljs from "npm:highlight.js@11.8.0";
+import hljs from "highlight.js";
 import { Theme } from "@src/modules/md-converter/themes/types.ts";
 import {
   ConverterFunc,

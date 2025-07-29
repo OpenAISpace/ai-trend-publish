@@ -1,11 +1,11 @@
-import cron from "npm:node-cron";
+import cron from "node-cron";
 import { WeixinArticleWorkflow } from "@src/services/weixin-article.workflow.ts";
 import { WeixinAIBenchWorkflow } from "@src/services/weixin-aibench.workflow.ts";
 import { WeixinHelloGithubWorkflow } from "@src/services/weixin-hellogithub.workflow.ts";
 import { BarkNotifier } from "@src/modules/notify/bark.notify.ts";
 import { WorkflowEntrypoint } from "@src/works/workflow.ts";
 import { WorkflowConfigService } from "@src/services/workflow-config.service.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 const logger = new Logger("cron");
 export enum WorkflowType {
   WeixinArticle = "weixin-article-workflow",
@@ -70,10 +70,10 @@ export const startCronJobs = () => {
             timestamp: Date.now(),
           });
         } else {
-          logger.info(`周${adjustedDay}没有配置对应的工作流`);
+          logger.info(`周{adjustedDay}没有配置对应的工作流`);
         }
       } catch (error) {
-        logger.error(`工作流执行失败:`, error);
+        logger.error(`工作流执行失败`, error);
         barkNotifier.notify("工作流执行失败", String(error));
       }
     },

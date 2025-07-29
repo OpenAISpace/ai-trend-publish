@@ -8,7 +8,7 @@ import { LLMFactory } from "@src/providers/llm/llm-factory.ts";
 import { LLMProvider, ChatMessage } from "@src/providers/interfaces/llm.interface.ts";
 import { WorkflowEnv, WorkflowEvent, WorkflowStep } from "@src/works/workflow.ts";
 import { BarkNotifier } from "@src/modules/notify/bark.notify.ts";
-// import { Logger } from "@zilla/logger";
+// import { Logger } from "@src/utils/logger-adapter.ts";
 // Logger.setLogLevel("DEBUG"); // Enable detailed logs for tests if needed
 
 // --- Mock Data Interfaces ---

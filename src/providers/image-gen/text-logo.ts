@@ -74,6 +74,6 @@ export class TextLogoGenerator extends BaseImageGenerator {
   ): Promise<void> {
     const generator = new TextLogoGenerator();
     const svg = await generator.generate(options);
-    await Deno.writeTextFile(outputPath, svg);
+    await Bun.write(outputPath, svg);
   }
 }

@@ -3,7 +3,7 @@ export class VectorSimilarityUtil {
    * 计算余弦相似度
    * @param vec1 向量1
    * @param vec2 向量2
-   * @returns 相似度值 (0-1之间)
+   * @returns 相似度(0-1之间)
    */
   static cosineSimilarity(vec1: number[], vec2: number[]): number {
     if (vec1.length !== vec2.length) {
@@ -22,7 +22,7 @@ export class VectorSimilarityUtil {
    * 计算欧氏距离
    * @param vec1 向量1
    * @param vec2 向量2
-   * @returns 距离值 (值越小表示越相似)
+   * @returns 距离(值越小表示越相似)
    */
   static euclideanDistance(vec1: number[], vec2: number[]): number {
     if (vec1.length !== vec2.length) {
@@ -40,7 +40,7 @@ export class VectorSimilarityUtil {
   /**
    * 将欧氏距离转换为相似度分数
    * @param distance 欧氏距离
-   * @returns 相似度值 (0-1之间)
+   * @returns 相似度(0-1之间)
    */
   static distanceToSimilarity(distance: number): number {
     return 1 / (1 + distance);

@@ -8,7 +8,7 @@ import {
 } from "@src/prompts/content-ranker.prompt.ts";
 import { RankResult } from "@src/modules/interfaces/content-ranker.interface.ts";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("ai-content-ranker");
 

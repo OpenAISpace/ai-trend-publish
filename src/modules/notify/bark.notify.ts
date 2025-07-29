@@ -1,7 +1,7 @@
-import axios from "npm:axios";
+import axios from "axios";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import { INotifier, Level } from "@src/modules/interfaces/notify.interface.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("BarkNotifier");
 
@@ -32,7 +32,7 @@ export class BarkNotifier implements INotifier {
     );
   }
   /**
-   * 发送 Bark 通知
+   * 发�?Bark 通知
    * @param title 通知标题
    * @param content 通知内容
    * @param options 通知选项
@@ -67,7 +67,7 @@ export class BarkNotifier implements INotifier {
       params.append("title", title);
       params.append("body", content);
 
-      // 添加可选参数
+      // 添加可选参�?
       if (options.level) {
         params.append("level", options.level);
       }
@@ -100,10 +100,10 @@ export class BarkNotifier implements INotifier {
         return true;
       }
 
-      console.error("Bark 通知发送失败:", response.data);
+      console.error("Bark 通知发送失�?", response.data);
       return false;
     } catch (error) {
-      console.error("Bark 通知发送出错:", error);
+      console.error("Bark 通知发送出�?", error);
       return false;
     }
   }

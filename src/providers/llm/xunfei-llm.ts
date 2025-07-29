@@ -30,7 +30,7 @@ interface XunfeiResponse {
 }
 
 /**
- * 讯飞星火大模型API适配器
+ * 讯飞星火大模型API适配�?
  */
 export class XunfeiLLM implements LLMProvider {
   private baseURL = "https://spark-api-open.xf-yun.com/v1/chat/completions";
@@ -55,7 +55,7 @@ export class XunfeiLLM implements LLMProvider {
   async refresh(): Promise<void> {
     this.token = await this.configManager.get("XUNFEI_API_KEY");
     if (!this.token) {
-      throw new Error("讯飞API密钥未设置");
+      throw new Error("讯飞API密钥未设置"); 
     }
 
     // 检查API服务是否可用
@@ -70,7 +70,7 @@ export class XunfeiLLM implements LLMProvider {
   /**
    * 创建聊天完成
    * @param messages 消息数组
-   * @param options 可选参数
+   * @param options 可选参�?
    * @returns 聊天完成响应
    */
   async createChatCompletion(
@@ -110,9 +110,9 @@ export class XunfeiLLM implements LLMProvider {
               ],
             }),
           }),
-          timeout: 60000, // 60秒超时
-          retries: 3, // 最多重试3次
-          retryDelay: 1000, // 重试间隔1秒
+          timeout: 60000, // 60秒超�?
+          retries: 3, // 最多重�?�?
+          retryDelay: 1000, // 重试间隔1�?
         },
       );
 
@@ -124,7 +124,7 @@ export class XunfeiLLM implements LLMProvider {
         throw new Error("没有可用的响应选项");
       }
 
-      // 转换为标准格式返回
+      // 转换为标准格式返�?
       return {
         id: response.sid,
         object: "chat.completion",
@@ -150,7 +150,7 @@ export class XunfeiLLM implements LLMProvider {
    * @param content 消息内容
    * @param systemPrompt 可选的系统提示
    * @param enableWebSearch 是否启用网络搜索
-   * @returns 助手的响应文本
+   * @returns 助手的响应
    */
   async sendMessage(
     content: string,

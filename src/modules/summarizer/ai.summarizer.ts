@@ -11,7 +11,7 @@ import {
 import { LLMFactory } from "@src/providers/llm/llm-factory.ts";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import { RetryUtil } from "@src/utils/retry.util.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 enum SummarizarSetting {
   AI_SUMMARIZER_LLM_PROVIDER = "AI_SUMMARIZER_LLM_PROVIDER",

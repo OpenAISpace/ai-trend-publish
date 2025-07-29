@@ -1,4 +1,4 @@
-import hljs from "npm:highlight.js@11.8.0";
+import hljs from "highlight.js";
 import { Theme } from "../../../themes/index.ts";
 import { ConverterFunc, MarkdownElement } from "../../../types/index.ts";
 import { makeStyleText } from "../../../utils/styles.ts";

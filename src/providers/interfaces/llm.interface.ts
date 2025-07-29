@@ -14,8 +14,7 @@ export interface ChatCompletionOptions {
 
 export interface LLMProvider {
   /**
-   * 初始化LLM提供者
-   */
+   * 初始化LLM提供�?   */
   initialize(): Promise<void>;
 
   /**
@@ -31,8 +30,7 @@ export interface LLMProvider {
   /**
    * 创建聊天完成
    * @param messages 消息数组
-   * @param options 可选参数
-   */
+   * @param options 可选参�?   */
   createChatCompletion(
     messages: ChatMessage[],
     options?: ChatCompletionOptions,
@@ -40,8 +38,7 @@ export interface LLMProvider {
 }
 
 /**
- * LLM提供者类型
- */
+ * LLM提供者类�? */
 export type LLMProviderType =
   | "OPENAI"
   | "DEEPSEEK"
@@ -50,8 +47,7 @@ export type LLMProviderType =
   | "QWEN";
 
 /**
- * LLM提供者类型映射
- */
+ * LLM提供者类型映�? */
 export interface LLMProviderTypeMap {
   "OPENAI": import("../llm/openai-compatible-llm.ts").OpenAICompatibleLLM;
   "DEEPSEEK": import("../llm/openai-compatible-llm.ts").OpenAICompatibleLLM;

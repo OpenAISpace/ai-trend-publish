@@ -14,7 +14,7 @@ import {
   WorkflowStep,
 } from "@src/works/workflow.ts";
 import { WorkflowTerminateError } from "@src/works/workflow-error.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 import { ImageGeneratorType } from "@src/providers/interfaces/image-gen.interface.ts";
 
 const logger = new Logger("weixin-aibench-workflow");
@@ -58,7 +58,7 @@ export class WeixinAIBenchWorkflow extends WorkflowEntrypoint<
       type: "json",
     });
 
-    // 由于type为json，imageResult一定是包含url的对象
+    // 由于type为json，imageResult一定是包含url的对�?
     return imageResult as string;
   }
 
@@ -84,9 +84,9 @@ export class WeixinAIBenchWorkflow extends WorkflowEntrypoint<
         return data;
       });
 
-      // 打印前5个模型性能数据
+      // 打印�?个模型性能数据
       const head5Models = Object.entries(modelData).slice(0, 5);
-      logger.debug("[数据获取] 前5个模型性能数据:", head5Models);
+      logger.debug("[数据获取] �?个模型性能数据:", head5Models);
 
       // 2. 找出性能最好的模型
       const topModel = await step.do("analyze-top-model", async () => {
@@ -130,10 +130,10 @@ export class WeixinAIBenchWorkflow extends WorkflowEntrypoint<
           timeout: "5 minutes",
         },
         async () => {
-          const title = `${topModelName}领跑！${
+          const title = `${topModelName}领跑�?{
             new Date().toLocaleDateString()
           } AI模型性能榜单`;
-          const imageTitle = `本周大模型排行 ${topModelOrg}旗下大模型登顶`;
+          const imageTitle = `本周大模型排�?${topModelOrg}旗下大模型登顶`;
           const html = await this.renderer.render(templateData);
 
           return { title, imageTitle, htmlContent: html };
@@ -163,7 +163,7 @@ export class WeixinAIBenchWorkflow extends WorkflowEntrypoint<
         );
       });
 
-      // 7. 完成报告
+      // 7. 完成报告  
       logger.info("[工作流] 工作流执行完成");
       logger.info("[发布] 发布结果:", publishResult);
       await this.notify.success(
@@ -180,7 +180,7 @@ export class WeixinAIBenchWorkflow extends WorkflowEntrypoint<
       }
 
       logger.error("[工作流] 执行失败:", message);
-      await this.notify.error("工作流失败", message);
+      await this.notify.error("工作流执行失败", message);
       throw error;
     }
   }

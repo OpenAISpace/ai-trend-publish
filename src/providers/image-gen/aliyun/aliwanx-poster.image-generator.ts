@@ -1,4 +1,4 @@
-import axios from "npm:axios";
+import axios from "axios";
 import {
   AliTaskResponse,
   AliTaskStatusResponse,
@@ -6,22 +6,21 @@ import {
 } from "@src/providers/image-gen/aliyun/base.aliyun.image-generator.ts";
 
 /**
- * 阿里云海报生成模型参数接口
- */
+ * 阿里云海报生成模型参数接口 */
 interface WanxPosterGenOptions {
-  title: string; // 必选，主标题，最多30个字符
-  sub_title?: string; // 可选，副标题，最多30个字符
-  body_text?: string; // 可选，正文，最多50个字符
+  title: string; // 必选，主标题，最多30个字
+  sub_title?: string; // 可选，副标题，最多30个字
+  body_text?: string; // 可选，正文，最多50个字
   prompt_text_zh?: string; // 可选，中文提示词
   prompt_text_en?: string; // 可选，英文提示词
   generate_mode: "generate" | "sr" | "hrf"; // 必选，生成模式
-  generate_num?: 1 | 2 | 3 | 4; // 可选，生成数量，仅在 generate 模式下有效
+  generate_num?: 1 | 2 | 3 | 4; // 可选，生成数量，仅generate 模式下有效
   auxiliary_parameters?: string; // 可选，sr或hrf模式下的辅助参数
   wh_ratios?: "横版" | "竖版"; // 可选，默认横版
   lora_name?:
     | "2D插画1"
     | "2D插画2"
-    | "浩瀚星云"
+    | "浩瀚星空"
     | "浓郁色彩"
     | "光线粒子"
     | "透明玻璃"
@@ -30,22 +29,21 @@ interface WanxPosterGenOptions {
     | "中国水墨"
     | "中国刺绣"
     | "真实场景"
-    | "2D卡通"
+    | "2D卡纸"
     | "儿童水彩"
     | "赛博背景"
     | "浅蓝抽象"
     | "深蓝抽象"
     | "抽象点线"
     | "童话油画"; // 可选，预设背景风格
-  lora_weight?: number; // 可选，lora权重，范围0-1，默认0.8
-  ctrl_ratio?: number; // 可选，留白效果权重，范围0-1，默认0.7
-  ctrl_step?: number; // 可选，留白步数比例，范围0-1，默认0.7
+  lora_weight?: number; // 可选，lora权重，范围-1-1，默认为0.8
+  ctrl_ratio?: number; // 可选，留白效果权重，范围-1-1，默认为0.7
+  ctrl_step?: number; // 可选，留白步数比例，范围-1-1，默认为0.7
   creative_title_layout?: boolean; // 可选，是否启用创意排版，默认false
 }
 
 /**
- * 阿里云海报生成器实现类
- */
+ * 阿里云海报生成器实现 */
 export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
   constructor() {
     super();
@@ -110,21 +108,21 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
 
     // 裁剪标题
     if (options.title.length > 30) {
-      console.warn(`标题超过30个字符，已自动裁剪。原文: ${options.title}`);
+      console.warn(`标题超过30个字符，已自动裁剪。原标题: ${options.title}`);
       options.title = options.title.slice(0, 30);
     }
 
     // 裁剪副标题
     if (options.sub_title && options.sub_title.length > 30) {
       console.warn(
-        `副标题超过30个字符，已自动裁剪。原文: ${options.sub_title}`,
+        `副标题超过30个字符，已自动裁剪。原副标题: ${options.sub_title}`,
       );
       options.sub_title = options.sub_title.slice(0, 30);
     }
 
     // 裁剪正文
     if (options.body_text && options.body_text.length > 50) {
-      console.warn(`正文超过50个字符，已自动裁剪。原文: ${options.body_text}`);
+      console.warn(`正文超过50个字符，已自动裁剪。原正文: ${options.body_text}`);
       options.body_text = options.body_text.slice(0, 50);
     }
 
@@ -136,7 +134,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     const promptLength = (options.prompt_text_zh?.length || 0) +
       (options.prompt_text_en?.length || 0);
     if (promptLength > 50) {
-      console.warn("中英文提示词总长度超过50个字符，将按比例裁剪");
+      console.warn("中英文提示词总长度超�?0个字符，将按比例裁剪");
       if (options.prompt_text_zh && options.prompt_text_en) {
         const ratio = 50 / promptLength;
         const zhLen = Math.floor(options.prompt_text_zh.length * ratio);
@@ -153,7 +151,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     // 处理生成模式
     if (!["generate", "sr", "hrf"].includes(options.generate_mode)) {
       console.warn(
-        `生成模式 "${options.generate_mode}" 无效，将使用默认值 "generate"`,
+        `生成模式 "${options.generate_mode}" 无效，将使用默认�?"generate"`,
       );
       options.generate_mode = "generate";
     }
@@ -169,14 +167,14 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     // 处理生成数量
     if (options.generate_mode === "generate" && options.generate_num) {
       if (![1, 2, 3, 4].includes(options.generate_num)) {
-        console.warn(`生成数量 ${options.generate_num} 无效，将使用默认值 1`);
+        console.warn(`生成数量 ${options.generate_num} 无效，将使用默认�?1`);
         options.generate_num = 1;
       }
     }
 
-    // 处理宽高比
+    // 处理宽高
     if (options.wh_ratios && !["横版", "竖版"].includes(options.wh_ratios)) {
-      console.warn(`宽高比 "${options.wh_ratios}" 无效，将使用默认值 "横版"`);
+      console.warn(`宽高"${options.wh_ratios}" 无效，将使用默认"横版"`);
       options.wh_ratios = "横版";
     }
 
@@ -184,7 +182,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     const validLoraNames = [
       "2D插画1",
       "2D插画2",
-      "浩瀚星云",
+      "浩瀚星空",
       "浓郁色彩",
       "光线粒子",
       "透明玻璃",
@@ -193,7 +191,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
       "中国水墨",
       "中国刺绣",
       "真实场景",
-      "2D卡通",
+      "2D卡纸",
       "儿童水彩",
       "赛博背景",
       "浅蓝抽象",
@@ -211,7 +209,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     if (options.lora_weight !== undefined) {
       if (options.lora_weight < 0 || options.lora_weight > 1) {
         console.warn(
-          `lora_weight ${options.lora_weight} 超出范围[0-1]，将使用默认值 0.8`,
+          `lora_weight ${options.lora_weight} 超出范围[0-1]，将使用默认0.8`,
         );
         options.lora_weight = 0.8;
       }
@@ -220,7 +218,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     if (options.ctrl_ratio !== undefined) {
       if (options.ctrl_ratio < 0 || options.ctrl_ratio > 1) {
         console.warn(
-          `ctrl_ratio ${options.ctrl_ratio} 超出范围[0-1]，将使用默认值 0.7`,
+          `ctrl_ratio ${options.ctrl_ratio} 超出范围[0-1]，将使用默认0.7`,
         );
         options.ctrl_ratio = 0.7;
       }
@@ -229,7 +227,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     if (options.ctrl_step !== undefined) {
       if (options.ctrl_step < 0 || options.ctrl_step > 1) {
         console.warn(
-          `ctrl_step ${options.ctrl_step} 超出范围[0-1]，将使用默认值 0.7`,
+          `ctrl_step ${options.ctrl_step} 超出范围[0-1]，将使用默认0.7`,
         );
         options.ctrl_step = 0.7;
       }

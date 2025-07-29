@@ -1,11 +1,11 @@
 import { WeixinTemplate } from "@src/modules/render/weixin/interfaces/article.type.ts";
-import ejs from "npm:ejs";
+import ejs from "ejs";
 import { WeixinImageProcessor } from "@src/utils/image/image-processor.ts";
 import { WeixinPublisher } from "@src/modules/publishers/weixin.publisher.ts";
 import { BaseTemplateRenderer } from "@src/modules/render/weixin/base.renderer.ts";
 
 /**
- * 文章模板渲染器
+ * 文章模板渲染�?
  */
 export class WeixinArticleTemplateRenderer
   extends BaseTemplateRenderer<WeixinTemplate[]> {
@@ -29,10 +29,10 @@ export class WeixinArticleTemplateRenderer
     const mediaUrls = article.media.map((m) => m.url);
     let mediaIndex = 0;
 
-    // 在段落之间插入图片
+    // 在段落之间插入图�?
     let processedContent = "";
 
-    // 第一张图片放在文章开头
+    // 第一张图片放在文章开�?
     if (mediaUrls.length > 0) {
       processedContent += `<img src="${
         mediaUrls[0]
@@ -52,7 +52,7 @@ export class WeixinArticleTemplateRenderer
         mediaIndex++;
       }
 
-      // 如果不是最后一个段落，添加段落分隔符
+      // 如果不是最后一个段落，添加段落分隔�?
       if (index < paragraphs.length - 1) {
         processedContent += "<next_paragraph />";
       }
@@ -70,16 +70,16 @@ export class WeixinArticleTemplateRenderer
   protected async loadTemplates(): Promise<void> {
     this.templates = {
       default: await this.getTemplateContent(
-        "/templates/article.ejs",
+        "templates/article.ejs",
       ),
       modern: await this.getTemplateContent(
-        "/templates/article.modern.ejs",
+        "templates/article.modern.ejs",
       ),
       tech: await this.getTemplateContent(
-        "/templates/article.tech.ejs",
+        "templates/article.tech.ejs",
       ),
       mianpro: await this.getTemplateContent(
-        "/templates/article.mianpro.ejs",
+        "templates/article.mianpro.ejs",
       ),
     };
   }
@@ -92,7 +92,7 @@ export class WeixinArticleTemplateRenderer
     template: string,
   ): Promise<string> {
     const imageProcessor = new WeixinImageProcessor(new WeixinPublisher());
-    // 预处理每篇文章 插入图片到段落之间
+    // 预处理每篇文�?插入图片到段落之�?
     console.log(
       `WeixinArticleTemplateRenderer doRender: ${data.length} articles`,
     );

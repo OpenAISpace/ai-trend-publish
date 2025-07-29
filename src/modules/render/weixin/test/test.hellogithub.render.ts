@@ -1,6 +1,6 @@
-import ejs from "npm:ejs";
-import fs from "npm:fs";
-import path from "npm:path";
+import ejs from "ejs";
+import fs from "fs";
+import path from "path";
 import { HelloGithubScraper } from "@src/modules/scrapers/hellogithub.scraper.ts";
 
 interface RenderOptions {
@@ -25,7 +25,7 @@ class HelloGithubRenderer {
    * @param options 渲染选项
    */
   async render(options: RenderOptions = {}) {
-    const { title = "本周 AI 开源项目精选", maxItems = 5 } = options;
+    const { title = "本周 AI 开源项目精�?, maxItems = 5 } = options;
 
     try {
       // 1. 获取数据
@@ -44,8 +44,7 @@ class HelloGithubRenderer {
         }),
       );
 
-      // 2. 读取并渲染模板
-      console.log("正在渲染模板...");
+      // 2. 读取并渲染模�?      console.log("正在渲染模板...");
       const template = fs.readFileSync(this.templatePath, "utf-8");
       const html = ejs.render(template, {
         items,
@@ -65,7 +64,7 @@ class HelloGithubRenderer {
       const outputFilePath = path.join(this.outputPath, fileName);
       fs.writeFileSync(outputFilePath, html, "utf-8");
 
-      console.log("渲染完成！输出文件:", outputFilePath);
+      console.log("渲染完成！输出文�?", outputFilePath);
       return outputFilePath;
     } catch (error: any) {
       console.error("渲染失败:", error.message);
@@ -80,7 +79,7 @@ async function testRender() {
 
   try {
     await renderer.render({
-      title: "🔥 本周 AI 开源项目精选",
+      title: "🔥 本周 AI 开源项目精�?,
       maxItems: 5,
     });
   } catch (error: any) {

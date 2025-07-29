@@ -1,5 +1,5 @@
 // src/utils/image/image-processor.ts
-import { decode, Image } from "https://deno.land/x/imagescript@1.2.17/mod.ts";
+import sharp from "sharp";
 
 interface ImageValidationResult {
   isValid: boolean;
@@ -40,9 +40,11 @@ export class WeixinImageProcessor {
     maxSizeInMB: number = 1,
   ): Promise<Uint8Array> {
     try {
-      // 解码图片
-      const image = await decode(new Uint8Array(imageBuffer)) as Image;
-      const originalSize = imageBuffer.byteLength / (1024 * 1024); // 转换为MB
+      // 使用 sharp 解码图片
+      const inputBuffer = Buffer.from(imageBuffer);
+      const image = sharp(inputBuffer);
+      const metadata = await image.metadata();
+      const originalSize = inputBuffer.byteLength / (1024 * 1024); // MB
 
       // 根据原始大小决定压缩策略
       let quality: number;
@@ -63,20 +65,50 @@ export class WeixinImageProcessor {
       }
 
       // 调整尺寸
-      const newWidth = Math.round(image.width * scale);
-      const newHeight = Math.round(image.height * scale);
-      image.resize(newWidth, newHeight);
+      let resized = image;
+      if (metadata.width && metadata.height) {
+        const newWidth = Math.round(metadata.width * scale);
+        const newHeight = Math.round(metadata.height * scale);
+        resized = image.resize(newWidth, newHeight);
+      }
 
-      // 编码压缩后的图片
-      const output = await image.encode(quality);
+      // 选择输出格式
+      let format = metadata.format;
+      if (!format || !["jpeg", "png", "webp"].includes(format)) {
+        format = "jpeg";
+      }
+
+      let output: Buffer;
+      if (format === "jpeg") {
+        output = await resized.jpeg({ quality }).toBuffer();
+      } else if (format === "png") {
+        output = await resized.png({ quality }).toBuffer();
+      } else if (format === "webp") {
+        output = await resized.webp({ quality }).toBuffer();
+      } else {
+        output = await resized.jpeg({ quality }).toBuffer();
+      }
 
       // 如果还是太大，再次尝试更激进的压缩
       if (output.length > maxSizeInMB * 1024 * 1024) {
-        image.resize(Math.round(newWidth * 0.7), Math.round(newHeight * 0.7));
-        return await image.encode(Math.max(quality - 20, 20));
+        if (metadata.width && metadata.height) {
+          const newWidth = Math.round((metadata.width * scale) * 0.7);
+          const newHeight = Math.round((metadata.height * scale) * 0.7);
+          resized = image.resize(newWidth, newHeight);
+        }
+        const lowerQuality = Math.max(quality - 20, 20);
+        if (format === "jpeg") {
+          output = await resized.jpeg({ quality: lowerQuality }).toBuffer();
+        } else if (format === "png") {
+          output = await resized.png({ quality: lowerQuality }).toBuffer();
+        } else if (format === "webp") {
+          output = await resized.webp({ quality: lowerQuality }).toBuffer();
+        } else {
+          output = await resized.jpeg({ quality: lowerQuality }).toBuffer();
+        }
       }
 
-      return output;
+      return new Uint8Array(output);
     } catch (error) {
       console.error("Image compression failed:", error);
       throw error;
@@ -122,7 +154,7 @@ export class WeixinImageProcessor {
           );
         }
 
-        // 上传图片到微信
+        // 上传图片到微信   
         const newUrl = await this.weixinPublisher.uploadContentImage(
           imageUrl,
           processedImage ? processedImage : new Uint8Array(imageBuffer),

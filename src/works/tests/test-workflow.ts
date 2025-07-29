@@ -1,5 +1,5 @@
 import { DataProcessingWorkflow } from "@src/works/example-workflow.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("test-workflow");
 
@@ -12,8 +12,7 @@ const workflow = new DataProcessingWorkflow({
 });
 
 Deno.test("执行工作流并获取统计信息", async () => {
-  // 执行工作流
-  await workflow.execute({
+  // 执行工作�?  await workflow.execute({
     payload: {
       userId: "user123",
       taskType: "data-processing",
@@ -28,7 +27,6 @@ Deno.test("执行工作流并获取统计信息", async () => {
 
   logger.info("Workflow stats:", stats);
 
-  // 获取所有工作流的统计信息
-  const allStats = workflow.getAllWorkflowStats();
+  // 获取所有工作流的统计信�?  const allStats = workflow.getAllWorkflowStats();
   logger.info("All workflow stats:", allStats);
 });

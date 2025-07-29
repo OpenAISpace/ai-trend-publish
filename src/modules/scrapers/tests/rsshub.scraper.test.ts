@@ -1,30 +1,35 @@
+import { test, expect } from "bun:test";
 import request from "@src/modules/scrapers/rsshub.scraper.ts";
 
-Deno.test("RSSHub 获取 JSON 格式数据", async () => {
+test("RSSHub 获取 JSON 格式数据", async () => {
   // 基本使用 - 获取 JSON Feed 格式数据
   const feed = await request("/aibase/news").json();
   console.log("JSON Feed 数据:", feed);
+  expect(feed).toBeDefined();
 });
 
-Deno.test("RSSHub 获取 RSS 2.0 格式数据", async () => {
+test("RSSHub 获取 RSS 2.0 格式数据", async () => {
   // 获取 RSS 2.0 格式数据
   const feed = await request("/aibase/news").rss2();
   console.log("RSS 2.0 数据:", feed);
+  expect(feed).toBeDefined();
 });
 
-Deno.test("RSSHub 获取 Atom 格式数据", async () => {
+test("RSSHub 获取 Atom 格式数据", async () => {
   // 获取 Atom 格式数据
   const feed = await request("/aibase/news").atom();
   console.log("Atom 数据:", feed);
+  expect(feed).toBeDefined();
 });
 
-Deno.test("RSSHub 获取 RSS3 格式数据", async () => {
+test("RSSHub 获取 RSS3 格式数据", async () => {
   // 获取 RSS3 格式数据
   const feed = await request("/aibase/news").rss3();
   console.log("RSS3 数据:", feed);
+  expect(feed).toBeDefined();
 });
 
-Deno.test("RSSHub 配置测试", async () => {
+test("RSSHub 配置测试", async () => {
   // 自定义 RSSHub 实例配置
   request.config({
     baseURL: "https://rsshub.example.com", // 修改 RSSHub 实例地址
@@ -35,10 +40,11 @@ Deno.test("RSSHub 配置测试", async () => {
   });
 
   const feed = await request("/v2/bing/daily-wallpaper").rss2();
-  console.log("自定义配置后的数据:", feed);
+  console.log("自定义配置后的数据", feed);
+  expect(feed).toBeDefined();
 });
 
-Deno.test("RSSHub 过滤器测试", async () => {
+test("RSSHub 过滤器测试", async () => {
   // 使用过滤器和限制条目数
   const feed = await request("/aibase/news")
     .filter("AI") // 只包含 AI 相关内容
@@ -52,26 +58,29 @@ Deno.test("RSSHub 过滤器测试", async () => {
     .json();
 
   console.log("过滤后的数据:", feed);
+  expect(feed).toBeDefined();
 });
 
-Deno.test("RSSHub 排序和全文测试", async () => {
+test("RSSHub 排序和全文测试", async () => {
   const feed = await request("/aibase/news")
     .sorted(true) // 按时间排序
     .fulltext() // 获取全文
     .get();
-  console.log("排序和全文数据:", feed);
+  console.log("排序和全文数据", feed);
+  expect(feed).toBeDefined();
 });
 
-Deno.test("RSSHub 格式转换测试", async () => {
+test("RSSHub 格式转换测试", async () => {
   const feed = await request("/aibase/news")
     .format("json") // 指定输出 JSON 格式
     .opencc("s2t") // 简体转繁体
-    .brief(200) // 输出200字简讯
+    .brief(200) // 输出200字简介
     .get();
   console.log("格式转换后的数据:", feed);
+  expect(feed).toBeDefined();
 });
 
-Deno.test("RSSHub 缓存控制测试", async () => {
+test("RSSHub 缓存控制测试", async () => {
   // 清除特定路径缓存
   request("/aibase/news").clearCache();
 
@@ -80,4 +89,5 @@ Deno.test("RSSHub 缓存控制测试", async () => {
 
   const feed = await request("/aibase/news").json();
   console.log("清除缓存后的数据:", feed);
+  expect(feed).toBeDefined();
 });

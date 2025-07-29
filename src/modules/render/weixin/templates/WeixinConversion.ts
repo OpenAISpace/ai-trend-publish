@@ -16,15 +16,14 @@ async function main() {
   configManager.initDefaultConfigSources();
   const weixinImageProcessor = new WeixinImageProcessor(new WeixinPublisher());
 
-  // 遍历所有模板文件
-  for (const template of templates) {
+  // 遍历所有模板文�?  for (const template of templates) {
     const templateFilePath = path.join(templatePath, template);
     const ejsTemplate = fs.readFileSync(templateFilePath, "utf-8");
 
     // 备份原始文件
     const backupPath = `${templateFilePath}.bak`;
     fs.copyFileSync(templateFilePath, backupPath);
-    console.log(`已备份文件: ${backupPath}`);
+    console.log(`已备份文�? ${backupPath}`);
 
     // 处理模板内容
     const result = await weixinImageProcessor.processContent(ejsTemplate);

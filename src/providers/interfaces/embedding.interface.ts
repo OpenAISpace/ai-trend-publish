@@ -3,7 +3,7 @@
  */
 export interface EmbeddingProvider {
   /**
-   * 初始化 Provider
+   * 初始�?Provider
    */
   initialize(): Promise<void>;
 
@@ -13,9 +13,9 @@ export interface EmbeddingProvider {
   refresh(): Promise<void>;
 
   /**
-   * 生成文本的 embedding
+   * 生成文本�?embedding
    * @param text 输入文本
-   * @param options 可选参数
+   * @param options 可选参�?
    */
   createEmbedding(text: string, options?: EmbeddingOptions): Promise<EmbeddingResult>;
 }

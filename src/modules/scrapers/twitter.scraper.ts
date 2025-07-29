@@ -6,7 +6,7 @@ import {
 } from "@src/modules/interfaces/scraper.interface.ts";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import { formatDate } from "@src/utils/common.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("twitter-scraper");
 
@@ -22,7 +22,7 @@ export class TwitterScraper implements ContentScraper {
       "X_API_BEARER_TOKEN",
     );
     logger.debug(
-      `TwitterScraper 初始化完成, 耗时: ${Date.now() - startTime}ms`,
+      `TwitterScraper 初始化完�? 耗时: ${Date.now() - startTime}ms`,
     );
   }
 

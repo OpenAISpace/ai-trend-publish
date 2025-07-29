@@ -1,6 +1,6 @@
 import { WXRenderer } from "../renderer/WXRenderer/WXRenderer.ts";
 import { defaultTheme } from "../themes/default.ts";
-import { marked } from "npm:marked@4.2.3";
+import { marked } from "marked";
 import { RednoteRenderer } from "../renderer/index.ts";
 
 Deno.test("微信完整渲染测试", () => {

@@ -2,7 +2,7 @@ import { Theme } from "./types.ts";
 
 export const rednoteTheme: Theme = {
   heading: {
-    // 一级标题样式
+    // 一级标题样�?
     h1: {
       "font-size": `21px`,
       "text-align": `left`,

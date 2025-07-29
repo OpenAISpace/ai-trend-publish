@@ -2,7 +2,7 @@ import { WorkflowType } from "@src/controllers/cron.ts";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 
 export interface DailyWorkflowConfig {
-  dayOfWeek: 1 | 2 | 3 | 4 | 5 | 6 | 7; // 1-7，表示周一到周日
+  dayOfWeek: 1 | 2 | 3 | 4 | 5 | 6 | 7; // 1-7，表示周一到周�?
   workflowType: WorkflowType;
   isEnabled: boolean;
 }
@@ -33,7 +33,7 @@ export class WorkflowConfigService {
         ? WorkflowType[workflowType as keyof typeof WorkflowType]
         : WorkflowType.WeixinArticle;
     } catch (error) {
-      console.error("获取工作流配置失败:", error);
+      console.error("获取工作流配置失�?", error);
       return WorkflowType.WeixinArticle;
     }
   }

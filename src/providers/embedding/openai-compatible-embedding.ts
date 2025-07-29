@@ -1,13 +1,13 @@
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import { EmbeddingProvider, EmbeddingOptions, EmbeddingResult } from "@src/providers/interfaces/embedding.interface.ts";
-import OpenAI from "npm:openai";
-import { Logger } from "@zilla/logger";
+import OpenAI from "openai";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("EmbeddingProvider")
 
 /**
- * OpenAI 兼容的 Embedding Provider 实现
- * 支持所有兼容 OpenAI API 的服务，如阿里云百炼等
+ * OpenAI 兼容�?Embedding Provider 实现
+ * 支持所有兼�?OpenAI API 的服务，如阿里云百炼�?
  */
 export class OpenAICompatibleEmbedding implements EmbeddingProvider {
   private baseURL!: string;
@@ -42,10 +42,10 @@ export class OpenAICompatibleEmbedding implements EmbeddingProvider {
     
     this.availableModels = (modelConfig as string).split("|").map(model => model.trim());
 
-    // 如果指定了特定模型，使用指定的模型，否则使用第一个可用模型
+    // 如果指定了特定模型，使用指定的模型，否则使用第一个可用模�?
     this.defaultModel = this.specifiedModel || this.availableModels[0];
 
-    // 初始化 OpenAI 客户端
+    // 初始�?OpenAI 客户�?
     this.client = new OpenAI({
       apiKey: this.apiKey,
       baseURL: this.baseURL
@@ -68,12 +68,12 @@ export class OpenAICompatibleEmbedding implements EmbeddingProvider {
     if (this.availableModels.includes(model)) {
       this.defaultModel = model;
     } else {
-      console.warn(`警告: 模型 ${model} 不在可用模型列表中，将使用默认模型 ${this.defaultModel}`);
+      console.warn(`警告: 模型 ${model} 不在可用模型列表中，将使用默认模�?${this.defaultModel}`);
     }
   }
 
   /**
-   * 获取当前使用的模型
+   * 获取当前使用的模�?
    */
   getModel(): string {
     return this.defaultModel;

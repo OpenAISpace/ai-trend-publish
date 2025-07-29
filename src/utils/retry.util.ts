@@ -1,4 +1,4 @@
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 import { WorkflowTerminateError } from "@src/works/workflow-error.ts";
 
 const logger = new Logger("retry-util");
@@ -7,17 +7,16 @@ const logger = new Logger("retry-util");
  * 重试操作的配置选项
  */
 export interface RetryOptions {
-  /** 最大重试次数 */
+  /** 最大重试次数*/
   maxRetries?: number;
   /** 基础延迟时间（毫秒） */
   baseDelay?: number;
-  /** 是否使用指数退避策略 */
+  /** 是否使用指数退避策略*/
   useExponentialBackoff?: boolean;
 }
 
 /**
- * 重试操作的详细结果
- */
+ * 重试操作的详细结果 */
 export interface RetryResult<T> {
   /** 操作结果 */
   result: T;
@@ -25,13 +24,12 @@ export interface RetryResult<T> {
   attempts: number;
   /** 是否成功 */
   success: boolean;
-  /** 最后一次错误（如果失败） */
+  /** 最后一次错误（如果失败）*/
   error?: Error;
 }
 
 /**
- * 重试操作工具类
- */
+ * 重试操作工具 */
 export class RetryUtil {
   /**
    * 执行可重试的异步操作（原有接口）
@@ -54,7 +52,7 @@ export class RetryUtil {
    * 执行可重试的异步操作并返回详细信息
    * @param operation 需要重试的异步操作
    * @param options 重试配置选项
-   * @returns 包含详细信息的操作结果Promise
+   * @returns 包含详细信息的操作结果
    */
   static async retryOperationWithStats<T>(
     operation: () => Promise<T>,

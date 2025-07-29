@@ -1,9 +1,9 @@
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("http-client");
 
-// 自定义错误类型
+// 自定义错误类
 export class HttpError extends Error {
   constructor(
     message: string,

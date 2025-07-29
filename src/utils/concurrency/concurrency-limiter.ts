@@ -1,4 +1,4 @@
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("concurrency-limiter");
 
@@ -46,10 +46,10 @@ export async function runConcurrentTasks<T>(
     }
   };
 
-  // 任务执行器
+  // 任务执行
   const executor = async () => {
     for (let i = 0; i < tasks.length; i++) {
-      // 等待有空闲位置
+      // 等待有空闲位
       while (running.size >= options.maxConcurrent) {
         await Promise.race(running);
       }
@@ -70,7 +70,7 @@ export async function runConcurrentTasks<T>(
   return results;
 }
 
-// 使用示例：
+// 使用示例
 /*
 const tasks = [
   async () => {

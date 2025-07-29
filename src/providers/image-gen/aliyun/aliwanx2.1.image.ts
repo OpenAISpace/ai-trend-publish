@@ -1,4 +1,4 @@
-import axios from "npm:axios";
+import axios from "axios";
 import {
   AliTaskResponse,
   AliTaskStatusResponse,

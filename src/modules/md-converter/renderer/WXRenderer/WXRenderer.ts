@@ -1,4 +1,4 @@
-import { Renderer } from "npm:marked@4.2.3";
+import { Renderer } from "marked";
 import {
   codeConverterFactory,
   codeSpanConverterFactory,

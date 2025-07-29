@@ -1,4 +1,4 @@
-import * as cheerio from "npm:cheerio";
+import * as cheerio from "cheerio";
 import {
   AIGithubItem,
   AIGithubItemDetail,
@@ -39,7 +39,7 @@ export class HelloGithubScraper {
   }
 
   /**
-   * 从 HelloGithub 获取项目详情
+   * �?HelloGithub 获取项目详情
    * @param itemId - 项目ID
    * @returns 项目详情
    */
@@ -80,7 +80,7 @@ export class HelloGithubScraper {
         console.log("Found online demo:", repoData.online);
         relatedUrls.push({ url: repoData.online, title: "演示" });
       }
-      // 计算上周获得的 star 数
+      // 计算上周获得�?star �?
       const starHistory = repoData.star_history;
       const lastWeekStars = starHistory ? starHistory.increment || 0 : 0;
 

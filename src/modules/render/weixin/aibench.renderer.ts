@@ -5,10 +5,10 @@ import {
   CategoryData,
   ModelScore,
 } from "@src/modules/render/weixin/interfaces/aibench.type.ts";
-import ejs from "npm:ejs";
+import ejs from "ejs";
 
 /**
- * AI Benchmark模板渲染器
+ * AI Benchmark模板渲染�?
  */
 export class AIBenchTemplateRenderer
   extends BaseTemplateRenderer<AIBenchTemplate> {
@@ -22,14 +22,14 @@ export class AIBenchTemplateRenderer
    */
   protected async loadTemplates(): Promise<void> {
     this.templates = {
-      default: await this.getTemplateContent("/templates/aibench.ejs"),
+      default: await this.getTemplateContent("templates/aibench.ejs"),
     };
   }
 
   /**
    * 将API返回的模型性能数据转换为AIBenchTemplate格式
    * @param modelData API返回的模型性能数据
-   * @returns AIBenchTemplate格式的数据
+   * @returns AIBenchTemplate格式的数�?
    */
   public transformData(
     modelData: { [key: string]: ModelPerformance },
@@ -40,11 +40,11 @@ export class AIBenchTemplateRenderer
       "Coding": "💻",
       "Mathematics": "🔢",
       "Data Analysis": "📊",
-      "Language": "🗣️",
+      "Language": "🗣",
       "IF": "🔍",
     };
 
-    // 初始化分类数据
+    // 初始化分类数�?
     const categories: CategoryData[] = Object.keys(categoryIcons).map(
       (name) => ({
         name,
@@ -53,7 +53,7 @@ export class AIBenchTemplateRenderer
       }),
     );
 
-    // 处理所有模型数据
+    // 处理所有模型数�?
     const allModels: ModelScore[] = [];
 
     for (const [modelName, performance] of Object.entries(modelData)) {

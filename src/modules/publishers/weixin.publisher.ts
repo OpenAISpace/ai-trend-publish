@@ -4,7 +4,7 @@ import {
   PublishResult,
 } from "@src/modules/interfaces/publisher.interface.ts";
 import { Buffer } from "node:buffer";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 const logger = new Logger("weixin-publisher");
 
 interface WeixinToken {
@@ -29,7 +29,7 @@ export class WeixinPublisher implements ContentPublisher {
   async refresh(): Promise<void> {
     this.appId = await ConfigManager.getInstance().get("WEIXIN_APP_ID");
     this.appSecret = await ConfigManager.getInstance().get("WEIXIN_APP_SECRET");
-    logger.debug("微信公众号配置:", {
+    logger.debug("微信公众号配置", {
       appId: this.appId,
       appSecret: this.appSecret,
     });
@@ -124,7 +124,7 @@ export class WeixinPublisher implements ContentPublisher {
     }
   }
   /**
-   * 上传图片到微信
+   * 上传图片到微�?
    * @param imageUrl 图片URL
    * @returns 图片ID
    */
@@ -140,7 +140,7 @@ export class WeixinPublisher implements ContentPublisher {
       `https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=${token}&type=image`;
 
     try {
-      // 创建FormData并添加图片数据
+      // 创建FormData并添加图片数�?
       const formData = new FormData();
       formData.append(
         "media",
@@ -171,7 +171,7 @@ export class WeixinPublisher implements ContentPublisher {
    * 上传图文消息内的图片获取URL
    * @param imageUrl 图片URL
    * @returns 图片URL
-   * @description 本接口所上传的图片不占用公众号的素材库中图片数量的限制
+   * @description 本接口所上传的图片不占用公众号的素材库中图片数量的限�?
    * 图片仅支持jpg/png格式，大小必须在1MB以下
    */
   async uploadContentImage(
@@ -187,11 +187,11 @@ export class WeixinPublisher implements ContentPublisher {
       `https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token=${token}`;
 
     try {
-      // 创建FormData并添加图片数据
+      // 创建FormData并添加图片数�?
       const formData = new FormData();
 
       if (imageBuffer) {
-        // 如果提供了压缩后的图片buffer，直接使用
+        // 如果提供了压缩后的图片buffer，直接使�?
         formData.append(
           "media",
           new Blob([imageBuffer], { type: "image/jpeg" }),
@@ -227,7 +227,7 @@ export class WeixinPublisher implements ContentPublisher {
   }
 
   /**
-   * 发布文章到微信
+   * 发布文章到微�?
    * @param article 文章内容
    * @param title 文章标题
    * @param digest 文章摘要

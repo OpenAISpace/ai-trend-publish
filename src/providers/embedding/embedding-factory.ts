@@ -5,7 +5,7 @@ import { ConfigManager } from "@src/utils/config/config-manager.ts";
 /**
  * 解析 Embedding Provider 配置
  * 支持两种格式:
- * 1. 简单格式: "PROVIDER" - 仅指定提供者类型
+ * 1. 简单格�? "PROVIDER" - 仅指定提供者类�?
  * 2. 扩展格式: "PROVIDER:model" - 指定提供者类型和模型
  */
 interface ParsedEmbeddingConfig {
@@ -14,7 +14,7 @@ interface ParsedEmbeddingConfig {
 }
 
 /**
- * Embedding Provider 工厂类
+ * Embedding Provider 工厂�?
  */
 export class EmbeddingFactory {
   private static instance: EmbeddingFactory;
@@ -36,8 +36,8 @@ export class EmbeddingFactory {
   }
 
   /**
-   * 解析 Provider 配置字符串
-   * @param config 配置字符串，格式为 "PROVIDER" 或 "PROVIDER:model"
+   * 解析 Provider 配置字符�?
+   * @param config 配置字符串，格式�?"PROVIDER" �?"PROVIDER:model"
    */
   private parseConfig(config: string): ParsedEmbeddingConfig {
     const parts = config.split(":");
@@ -55,9 +55,9 @@ export class EmbeddingFactory {
   }
 
   /**
-   * 获取指定类型的 Embedding Provider
+   * 获取指定类型�?Embedding Provider
    * @param typeOrConfig Provider 类型或配置字符串 
-   * @param needRefresh 是否需要刷新配置
+   * @param needRefresh 是否需要刷新配�?
    */
   public async getProvider<T extends ParsedEmbeddingConfig>(
     typeOrConfig: T | string,
@@ -67,7 +67,7 @@ export class EmbeddingFactory {
     const config = typeof typeOrConfig === "string" ? 
       this.parseConfig(typeOrConfig) : typeOrConfig;
 
-    // 获取缓存键
+    // 获取缓存�?
     const cacheKey = this.getProviderCacheKey(config);
 
     // 如果已经创建过该类型的提供者，且不需要刷新，直接返回
@@ -75,7 +75,7 @@ export class EmbeddingFactory {
       return this.providers.get(cacheKey)! as EmbeddingProviderTypeMap[T["providerType"]];
     }
 
-    // 如果需要刷新且提供者存在，先刷新配置
+    // 如果需要刷新且提供者存在，先刷新配�?
     if (needRefresh && this.providers.has(cacheKey)) {
       await this.providers.get(cacheKey)!.refresh();
       return this.providers.get(cacheKey)! as EmbeddingProviderTypeMap[T["providerType"]];
@@ -84,19 +84,19 @@ export class EmbeddingFactory {
     // 创建新的 provider
     const provider = this.createProvider(config);
     
-    // 初始化提供者
+    // 初始化提供�?
     try {
       await provider.initialize();
       this.providers.set(cacheKey, provider);
       return provider as EmbeddingProviderTypeMap[T["providerType"]];
     } catch (error) {
-      console.error(`初始化 Embedding Provider 失败 [${cacheKey}]:`, error);
-      throw new Error(`无法初始化 Embedding Provider [${cacheKey}]: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(`初始�?Embedding Provider 失败 [${cacheKey}]:`, error);
+      throw new Error(`无法初始�?Embedding Provider [${cacheKey}]: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   /**
-   * 创建指定类型的 Provider
+   * 创建指定类型�?Provider
    * @param config Provider 配置
    */
   private createProvider(config: ParsedEmbeddingConfig): EmbeddingProvider {

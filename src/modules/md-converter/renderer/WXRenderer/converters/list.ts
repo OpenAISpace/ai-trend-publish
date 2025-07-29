@@ -14,7 +14,7 @@ export const listConverter: ConverterFunc<MarkdownElement.List> = (
   body = body.replace(/<\/*p.*?>/g, "");
   const segments = body.split(`<%s/>`);
   if (!ordered) {
-    body = segments.join("â€¢ ");
+    body = segments.join("â€?");
     return `<ul style="${makeStyleText(styles.list.ul)}">${body}</ul>`;
   }
   body = segments[0];

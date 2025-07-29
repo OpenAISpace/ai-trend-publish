@@ -1,8 +1,8 @@
 import db from "@src/db/db.ts";
 import { IConfigSource } from "../interfaces/config-source.interface.ts";
 import { config } from "@src/db/schema.ts";
-import { eq } from "npm:drizzle-orm/expressions";
-import { Logger } from "@zilla/logger";
+import { eq } from "drizzle-orm";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("DbConfigSource");
 

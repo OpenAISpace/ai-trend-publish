@@ -1,0 +1,11 @@
+[install]
+# 使用 npm 作为包管理器
+registry = "https://registry.npmjs.org/"
+
+# 路径别名配置  
+[resolve]
+alias = { "@src/*" = "./src/*" }
+
+# 环境配置
+[env]
+NODE_ENV = "development" 

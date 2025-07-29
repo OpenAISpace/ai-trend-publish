@@ -1,9 +1,9 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import { config, dataSources, vectorItems } from "@src/db/schema.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 import process from "node:process";
-import dotenv from "npm:dotenv";
+import dotenv from "dotenv";
 
 dotenv.config();
 

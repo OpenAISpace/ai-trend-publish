@@ -1,7 +1,7 @@
 import { INotifier, Level } from "@src/modules/interfaces/notify.interface.ts";
-import axios from "npm:axios";
+import axios from "axios";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("feishu-notify");
 
@@ -101,12 +101,12 @@ ${content}` : content;
   }
 
   async success(title: string, content: string): Promise<boolean> {
-    return this.notify(title, `‚úÖ ${content}`, { level: "active" });
+    return this.notify(title, `‚ú?${content}`, { level: "active" });
   }
 
   async error(title: string, content: string): Promise<boolean> {
     // Consider if error messages should @mention anyone by default in Feishu
-    return this.notify(title, `‚ùå ${content}`, { level: "timeSensitive" });
+    return this.notify(title, `‚ù?${content}`, { level: "timeSensitive" });
   }
 
   async warning(title: string, content: string): Promise<boolean> {

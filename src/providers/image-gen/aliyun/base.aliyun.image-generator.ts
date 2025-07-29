@@ -1,6 +1,6 @@
 import { BaseImageGenerator } from "@src/providers/image-gen/base.image-generator.ts";
-import axios from "npm:axios";
-import { Logger } from "@zilla/logger";
+import axios from "axios";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("aliyun");
 
@@ -16,8 +16,7 @@ export interface AliTaskResponse {
 }
 
 /**
- * 阿里云基础任务状态响应接口
- */
+ * 阿里云基础任务状态响应接�? */
 export interface AliTaskStatusResponse {
   request_id: string;
   // deno-lint-ignore no-explicit-any
@@ -47,8 +46,7 @@ export abstract class BaseAliyunImageGenerator extends BaseImageGenerator {
 
   /**
    * 生成随机种子
-   * @returns 1到4294967290之间的随机整数
-   */
+   * @returns 1�?294967290之间的随机整�?   */
   protected generateSeed(): number {
     return Math.floor(Math.random() * 4294967290) + 1;
   }
@@ -95,8 +93,7 @@ export abstract class BaseAliyunImageGenerator extends BaseImageGenerator {
   }
 
   /**
-   * 检查任务状态
-   */
+   * 检查任务状�?   */
   protected async checkTaskStatus(
     taskId: string,
   ): Promise<AliTaskStatusResponse["output"]> {
@@ -114,7 +111,7 @@ export abstract class BaseAliyunImageGenerator extends BaseImageGenerator {
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         throw new Error(
-          `任务状态检查失败: ${error.response?.data?.message || error.message}`,
+          `任务状态检查失�? ${error.response?.data?.message || error.message}`,
         );
       }
       throw error;
@@ -154,8 +151,7 @@ export abstract class BaseAliyunImageGenerator extends BaseImageGenerator {
   }
 
   /**
-   * 数值范围限制工具方法
-   */
+   * 数值范围限制工具方�?   */
   protected clampValue(
     value: number | undefined,
     min: number,

@@ -39,7 +39,7 @@ export class OpenAICompatibleLLM implements LLMProvider {
       model: string,
     ) => model.trim());
 
-    // 如果指定了特定模型，使用指定的模型，否则使用第一个可用模型
+    // 如果指定了特定模型，使用指定的模型，否则使用第一个可用模�?
     this.defaultModel = this.specifiedModel || this.availableModels[0];
 
     if (!this.baseURL) {
@@ -59,7 +59,7 @@ export class OpenAICompatibleLLM implements LLMProvider {
   }
 
   /**
-   * 设置使用的模型
+   * 设置使用的模�?
    * @param model 模型名称
    */
   public setModel(model: string): void {
@@ -67,13 +67,13 @@ export class OpenAICompatibleLLM implements LLMProvider {
       this.defaultModel = model;
     } else {
       console.warn(
-        `警告: 模型 ${model} 不在可用模型列表中，将使用默认模型 ${this.defaultModel}`,
+        `警告: 模型 ${model} 不在可用模型列表中，将使用默认模�?${this.defaultModel}`,
       );
     }
   }
 
   /**
-   * 获取当前使用的模型
+   * 获取当前使用的模�?
    * @returns 当前模型名称
    */
   public getModel(): string {
@@ -109,9 +109,9 @@ export class OpenAICompatibleLLM implements LLMProvider {
           stream: options.stream ?? false,
           response_format: options.response_format,
         }),
-        timeout: 60000, // 60秒超时
-        retries: 3, // 最多重试3次
-        retryDelay: 1000, // 重试间隔1秒
+        timeout: 60000, // 60秒超�?
+        retries: 3, // 最多重�?�?
+        retryDelay: 1000, // 重试间隔1�?
       });
     } catch (error) {
       throw new Error(`创建聊天完成失败: ${(error as Error).message}`);

@@ -1,7 +1,8 @@
 # TrendPublish
 
-基于 Deno
-开发的趋势发现和内容发布系统，支持多源数据采集、智能总结和自动发布到微信公众号。
+基于 Bun 开发的趋势发现和内容发布系统，支持多源数据采集、智能总结和自动发布到微信公众号。
+
+> **重要提示**: 本项目已从 Deno 重构为 Bun 运行时。请使用以下说明进行安装和使用。
 
 > 🌰 示例公众号：**AISPACE科技空间**
 
@@ -14,24 +15,24 @@
 
 ## 🛠 开发环境
 
-- **运行环境**: [Deno](https://deno.land/) v2.0.0 或更高版本
+- **运行环境**: [Bun](https://bun.sh/) v1.2.0 或更高版本
 - **开发语言**: TypeScript
 - **操作系统**: Windows/Linux/MacOS
 
 ## 🚀 快速开始
 
-### 1. 安装 Deno
+### 1. 安装 Bun
 
-Windows (PowerShell):
+Windows:
 
 ```powershell
-irm https://deno.land/install.ps1 | iex
+powershell -c "irm bun.sh/install.ps1 | iex"
 ```
 
 MacOS/Linux:
 
 ```bash
-curl -fsSL https://deno.land/install.sh | sh
+curl -fsSL https://bun.sh/install | bash
 ```
 
 ### 2. 克隆项目
@@ -48,28 +49,37 @@ cp .env.example .env
 # 编辑 .env 文件配置必要的环境变量
 ```
 
+### 3. 安装依赖
+
+```bash
+bun install
+```
+
 ### 4. 开发和运行
 
 ```bash
 # 开发模式（支持热重载）
-deno task start
+bun run dev
+
+# 正常运行
+bun start
 
 # 测试运行
-deno task test
+bun run test
 
 # 编译Windows版本
-deno task build:win
+bun run build:win
 
 # 编译Mac版本
-deno task build:mac-x64    # Intel芯片
-deno task build:mac-arm64  # M系列芯片
+bun run build:mac-x64    # Intel芯片
+bun run build:mac-arm64  # M系列芯片
 
 # 编译Linux版本
-deno task build:linux-x64   # x64架构
-deno task build:linux-arm64 # ARM架构
+bun run build:linux-x64   # x64架构
+bun run build:linux-arm64 # ARM架构
 
 # 编译所有平台版本
-deno task build:all
+bun run build:all
 ```
 
 ## 🌟 主要功能
@@ -140,21 +150,22 @@ TrendPublish 提供了多种精美的文章模板。查看
 
 ## 🛠 技术栈
 
-- **运行环境**: Deno + TypeScript
+- **运行环境**: Bun + TypeScript
 - **AI 服务**: DeepseekAI Together 千问 万象 讯飞
 - **数据源**:
   - Twitter/X API
   - FireCrawl
 - **模板引擎**: EJS
 - **开发工具**:
-  - Deno
+  - Bun
   - TypeScript
+- **日志系统**: LogTape (跨运行时日志库)
 
 ## 🚀 快速开始
 
 ### 环境要求
 
-- Deno (v2+)
+- Bun (v1.2+)
 - TypeScript
 
 ### 安装

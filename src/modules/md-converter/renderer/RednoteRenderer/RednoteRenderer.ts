@@ -1,4 +1,4 @@
-import { Renderer } from "npm:marked@4.2.3";
+import { Renderer } from "marked";
 import { BaseRenderer } from "@src/modules/md-converter/renderer/BaseRenderer/BaseRenderer.ts";
 import { codeConverterFactory } from "@src/modules/md-converter/renderer/RednoteRenderer/converters/code.ts";
 import { codespanConverterFactory } from "@src/modules/md-converter/renderer/RednoteRenderer/converters/codespan.ts";

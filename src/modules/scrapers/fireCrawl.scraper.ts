@@ -1,4 +1,4 @@
-import FirecrawlApp from "npm:firecrawl";
+import FirecrawlApp from "firecrawl";
 import {
   ContentScraper,
   ScrapedContent,
@@ -6,8 +6,8 @@ import {
 } from "@src/modules/interfaces/scraper.interface.ts";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import { formatDate } from "@src/utils/common.ts";
-import zod from "npm:zod";
-import { Logger } from "@zilla/logger";
+import zod from "zod";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("fireCrawl-scraper");
 
@@ -31,7 +31,7 @@ export class FireCrawlScraper implements ContentScraper {
     this.app = new FirecrawlApp({
       apiKey: await ConfigManager.getInstance().get("FIRE_CRAWL_API_KEY"),
     });
-    logger.debug(`FireCrawlApp 初始化完成, 耗时: ${Date.now() - startTime}ms`);
+    logger.debug(`FireCrawlApp 初始化完�? 耗时: ${Date.now() - startTime}ms`);
   }
 
   private generateId(url: string): string {
@@ -52,7 +52,7 @@ export class FireCrawlScraper implements ContentScraper {
       const startTime = Date.now();
       const currentDate = new Date().toLocaleDateString();
 
-      // 构建提取提示词
+      // 构建提取提示�?
       const promptForFirecrawl = `
       Return only today's AI or LLM related story or post headlines and links in JSON format from the page content. 
       They must be posted today, ${currentDate}. The format should be:
@@ -93,9 +93,9 @@ export class FireCrawlScraper implements ContentScraper {
       // 使用 zod 验证返回数据
       const validatedData = StoriesSchema.parse(scrapeResult.extract);
 
-      // 转换为 ScrapedContent 格式
+      // 转换�?ScrapedContent 格式
       logger.debug(
-        `[FireCrawl] 从 ${sourceId} 获取到 ${validatedData.stories.length} 条内容 耗时: ${
+        `[FireCrawl] �?${sourceId} 获取�?${validatedData.stories.length} 条内�?耗时: ${
           Date.now() - startTime
         }ms`,
       );

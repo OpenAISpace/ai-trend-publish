@@ -36,17 +36,17 @@ export class JSONRPCServer {
   async handleRequest(request: Request): Promise<Response> {
     try {
       if (request.method !== "POST") {
-        throw new Error("只支持 POST 请求");
+        throw new Error("只支�?POST 请求");
       }
 
       const body = await request.json() as JSONRPCRequest;
 
       if (!body.jsonrpc || body.jsonrpc !== "2.0") {
-        throw new Error("无效的 JSON-RPC 请求");
+        throw new Error("无效�?JSON-RPC 请求");
       }
 
       if (!body.method) {
-        throw new Error("请求缺少方法名");
+        throw new Error("请求缺少方法");
       }
 
       const handler = this.routes[body.method];
@@ -71,7 +71,7 @@ export class JSONRPCServer {
       );
     } catch (error) {
       const isClientError = error instanceof Error && (
-        error.message.includes("无效的") ||
+        error.message.includes("无效") ||
         error.message.includes("不存在") ||
         error.message.includes("缺少")
       );
@@ -99,14 +99,14 @@ export class JSONRPCServer {
   }
 }
 
-// 创建 JSON-RPC 服务器实例
+// 创建 JSON-RPC 服务器实�?
 const rpcServer = new JSONRPCServer();
 rpcServer.registerRoute("triggerWorkflow", triggerWorkflow);
 
-// 请求处理器
+// 请求处理�?
 const handler = async (req: Request): Promise<Response> => {
   try {
-    // 验证 Authorization 请求头
+    // 验证 Authorization 请求�?
     const configManager = ConfigManager.getInstance();
     const API_KEY = await configManager.get("SERVER_API_KEY");
 
@@ -137,7 +137,7 @@ const handler = async (req: Request): Promise<Response> => {
     // 规范化路径（移除开头和结尾的斜杠，处理可能的错误格式）
     const normalizedPath = url.pathname.replace(/^\/+|\/+$/g, "");
     
-    // 只处理 api/workflow 路径的请求
+    // 只处�?api/workflow 路径的请�?
     if (normalizedPath === "api/workflow") {
       return await rpcServer.handleRequest(req);
     }
@@ -186,9 +186,12 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 export default function startServer(port = 8000) {
-  Deno.serve({ port }, handler);
-  console.log(`JSON-RPC 服务器运行在 http://localhost:${port}`);
-  console.log("支持的方法:");
+  const server = Bun.serve({
+    port,
+    fetch: handler,
+  });
+  console.log(`JSON-RPC 服务器运行在 http://localhost:${server.port}`);
+  console.log("支持的方�?");
   console.log("- triggerWorkflow");
   console.log(`可用的工作流类型: ${Object.values(WorkflowType).join(", ")}`);
 }

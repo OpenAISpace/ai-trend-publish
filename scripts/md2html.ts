@@ -1,4 +1,4 @@
-import { renderMarkdown } from "jsr:@sapling/markdown";
+import { marked } from "marked";
 import { walk } from "https://deno.land/std@0.224.0/fs/mod.ts";
 import { basename, join } from "https://deno.land/std@0.224.0/path/mod.ts";
 

@@ -1,7 +1,7 @@
 import { INotifier, Level } from "@src/modules/interfaces/notify.interface.ts";
-import axios from "npm:axios";
+import axios from "axios";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("dingding-notify");
 
@@ -69,8 +69,8 @@ export class DingdingNotify implements INotifier {
       const message = {
         msgtype: "text",
         text: {
-          content: `通知：${title}\n${content}${
-            options.url ? `\n详情链接：${options.url}` : ""
+          content: `通知�?{title}\n${content}${
+            options.url ? `\n详情链接�?{options.url}` : ""
           }`,
         },
         at: {
@@ -106,7 +106,7 @@ export class DingdingNotify implements INotifier {
    * 发送成功通知
    */
   async success(title: string, content: string): Promise<boolean> {
-    return this.notify(title, `✅ ${content}`, {
+    return this.notify(title, `�?${content}`, {
       level: "active",
       group: "success",
     });
@@ -116,7 +116,7 @@ export class DingdingNotify implements INotifier {
    * 发送错误通知
    */
   async error(title: string, content: string): Promise<boolean> {
-    return this.notify(title, `❌ ${content}`, {
+    return this.notify(title, `�?${content}`, {
       level: "timeSensitive",
       group: "error",
     });

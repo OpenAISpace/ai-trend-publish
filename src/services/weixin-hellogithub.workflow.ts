@@ -10,7 +10,7 @@ import {
   WorkflowStep,
 } from "@src/works/workflow.ts";
 import { WorkflowTerminateError } from "@src/works/workflow-error.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 import { BarkNotifier } from "@src/modules/notify/bark.notify.ts";
 import { ImageGeneratorType } from "@src/providers/interfaces/image-gen.interface.ts";
 import { LLMFactory } from "@src/providers/llm/llm-factory.ts";
@@ -113,12 +113,12 @@ export class WeixinHelloGithubWorkflow extends WorkflowEntrypoint<
                   {
                     role: "system",
                     content:
-                      "你是一位技术文案专家，擅长将开源项目描述润色得更加生动、专业且吸引人，同时保持技术准确性。",
+                      "你是一位技术文案专家，擅长将开源项目描述润色得更加生动、专业且吸引人，同时保持技术准确性",
                   },
                   {
                     role: "user",
                     content:
-                      `请对以下GitHub项目描述进行润色，使其更加生动、专业且吸引人，保持在200字以内：\n${item.description}`,
+                      `请对以下GitHub项目描述进行润色，使其更加生动、专业且吸引人，保持�?00字以内：\n${item.description}`,
                   },
                 ]);
 
@@ -137,7 +137,7 @@ export class WeixinHelloGithubWorkflow extends WorkflowEntrypoint<
               `[内容润色] 项目 ${item.name} 润色失败: `,
               error,
             );
-            // 润色失败时保留原始描述
+            // 润色失败时保留原始描�?
             return item;
           }
         });
@@ -145,11 +145,11 @@ export class WeixinHelloGithubWorkflow extends WorkflowEntrypoint<
         // 使用并发控制器执行润色任务，限制最大并发为3
         const enhancedDetails = await runConcurrentTasks(enhanceTasks, {
           maxConcurrent: 20,
-          timeout: 30000, // 30秒超时
+          timeout: 30000, // 30秒超�?
         });
 
         logger.info(
-          `[内容润色] 完成对 ${enhancedDetails.length} 个项目描述的润色`,
+          `[内容润色] 完成�?${enhancedDetails.length} 个项目描述的润色`,
         );
 
         if (details.length === 0) {
@@ -163,18 +163,18 @@ export class WeixinHelloGithubWorkflow extends WorkflowEntrypoint<
         retries: { limit: 2, delay: "5 second", backoff: "exponential" },
         timeout: "5 minutes",
       }, async () => {
-        logger.info("[封面生成] 开始生成封面图片");
+        logger.info("[封面生成] 开始生成封面图");
         const firstItem = items[0];
         const imageGenerator = await ImageGeneratorFactory.getInstance()
           .getGenerator(ImageGeneratorType.PDD920_LOGO);
         const url = await imageGenerator.generate({
           t: "@AISPACE科技空间",
-          text: `本期精选 GitHub 热门${firstItem.name}`,
+          text: `本期精�?GitHub 热门${firstItem.name}`,
           type: "json",
         });
 
         // 上传封面图片获取 mediaId
-        logger.info("[封面上传] 开始上传封面图片");
+        logger.info("[封面上传] 开始上传封面图");
         const media = await this.publisher.uploadImage(url as string);
         return media;
       });
@@ -187,7 +187,7 @@ export class WeixinHelloGithubWorkflow extends WorkflowEntrypoint<
         logger.info("[内容生成] 开始渲染内容");
         const firstItem = items[0];
         const title =
-          `本期精选 GitHub 热门 AI 开源项目，第一名 ${firstItem.name} 项目备受瞩目，发现最新最酷的人工智能开源工具`;
+          `本期精选 GitHub 热门 AI 开源项目，第一 ${firstItem.name} 项目备受瞩目，发现最新最酷的人工智能开源工具`;
         const html = await this.renderer.render(items);
         return { title, htmlContent: html };
       });
@@ -223,7 +223,7 @@ export class WeixinHelloGithubWorkflow extends WorkflowEntrypoint<
       }
 
       logger.error("[工作流] 执行失败:", message);
-      await this.notify.error("工作流失败", message);
+      await this.notify.error("工作流执行失败", message);
       throw error;
     }
   }

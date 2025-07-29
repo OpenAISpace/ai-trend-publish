@@ -6,7 +6,7 @@ async function testTextLogo() {
     // 蓝色渐变主题
     await TextLogoGenerator.saveToFile(
       {
-        text: "大模型榜单",
+        text: "大模型榜�?,
         width: 1200,
         height: 400,
         fontSize: 160,
@@ -17,10 +17,10 @@ async function testTextLogo() {
       path.join(__dirname, "../../output/logo-blue.png"),
     );
 
-    // 深紫色渐变主题
+    // 深紫色渐变主�?
     await TextLogoGenerator.saveToFile(
       {
-        text: "大模型榜单",
+        text: "大模型榜�?,
         width: 1200,
         height: 400,
         fontSize: 160,
@@ -31,10 +31,10 @@ async function testTextLogo() {
       path.join(__dirname, "../../output/logo-purple.png"),
     );
 
-    // 科技蓝主题
+    // 科技蓝主�?
     await TextLogoGenerator.saveToFile(
       {
-        text: "大模型榜单",
+        text: "大模型榜�?,
         width: 1200,
         height: 400,
         fontSize: 160,

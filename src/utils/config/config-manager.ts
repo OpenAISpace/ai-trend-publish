@@ -1,7 +1,7 @@
 import { IConfigSource } from "./interfaces/config-source.interface.ts";
 import { DbConfigSource } from "./sources/db-config.source.ts";
 import { EnvConfigSource } from "./sources/env-config.source.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("ConfigManager");
 
@@ -35,8 +35,8 @@ export class ConfigManager {
   }
 
   /**
-   * 添加配置源
-   * @param source 配置源实例
+   * 添加配置�?
+   * @param source 配置源实�?
    */
   public addSource(source: IConfigSource): void {
     this.configSources.push(source);
@@ -83,9 +83,9 @@ export class ConfigManager {
   }
 
   /**
-   * 获取配置值
-   * @param key 配置键
-   * @param retryOptions 重试选项，可选
+   * 获取配置�?
+   * @param key 配置�?
+   * @param retryOptions 重试选项，可�?
    * @throws {ConfigurationError} 当所有配置源都无法获取值时抛出
    */
   public async get<T>(

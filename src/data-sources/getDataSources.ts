@@ -1,7 +1,7 @@
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import db from "@src/db/db.ts";
 import { dataSources } from "@src/db/schema.ts";
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 export type NewsPlatform = "firecrawl" | "twitter";
 
 const logger = new Logger("getDataSources");

@@ -16,17 +16,14 @@ export interface ContentRankerConfig {
 
 export interface ContentRanker {
   /**
-   * 对内容列表进行评分排名
-   * @param contents 需要评分的内容列表
+   * 对内容列表进行评分排�?   * @param contents 需要评分的内容列表
    * @returns 评分结果列表
    */
   rankContents(contents: ScrapedContent[]): Promise<RankResult[]>;
 
   /**
-   * 批量对内容进行评分排名
-   * @param contents 需要评分的内容列表
-   * @param batchSize 每批处理的内容数量
-   * @returns 评分结果列表
+   * 批量对内容进行评分排�?   * @param contents 需要评分的内容列表
+   * @param batchSize 每批处理的内容数�?   * @returns 评分结果列表
    */
   rankContentsBatch(
     contents: ScrapedContent[],

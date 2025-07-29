@@ -29,7 +29,7 @@ export class ImageGeneratorFactory {
 
   /**
    * 获取指定类型的图片生成器
-   * @param type 生成器类型
+   * @param type 生成器类
    * @param needRefresh 是否需要刷新配置
    * @returns 图片生成器实例
    */
@@ -65,7 +65,7 @@ export class ImageGeneratorFactory {
         generator = new AliyunWanxPosterGenerator();
         break;
       default:
-        throw new Error(`不支持的图片生成器类型: ${type}`);
+        throw new Error(`不支持的图片生成器类: ${type}`);
     }
 
     // 初始化生成器
@@ -83,7 +83,7 @@ export class ImageGeneratorFactory {
     for (const [type, generator] of this.generators.entries()) {
       refreshPromises.push(
         generator.refresh().catch((error) => {
-          console.error(`刷新图片生成器配置失败 [${type}]:`, error);
+          console.error(`刷新图片生成器配置失败[${type}]:`, error);
         }),
       );
     }

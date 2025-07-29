@@ -8,7 +8,7 @@ async function testPDD920Logo() {
     await PDD920LogoGenerator.saveToFile(
       {
         t: "@AISPACE科技空间",
-        text: "本周大模型榜单",
+        text: "本周大模型榜�?,
       },
       path.join(__dirname, "../../output/pdd920-logo.png"),
     );

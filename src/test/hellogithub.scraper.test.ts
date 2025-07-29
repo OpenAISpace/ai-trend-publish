@@ -1,7 +1,7 @@
 import { HelloGithubScraper } from "@src/modules/scrapers/hellogithub.scraper.ts";
 
 async function testScraper() {
-  console.log("开始测试 HelloGithubScraper...");
+  console.log("开始测�?HelloGithubScraper...");
   const scraper = new HelloGithubScraper();
 
   try {
@@ -21,7 +21,7 @@ async function testScraper() {
       console.log(JSON.stringify(result, null, 2));
     }
   } catch (error: any) {
-    console.error("测试过程中发生错误:", error.message);
+    console.error("测试过程中发生错�?", error.message);
   }
 }
 

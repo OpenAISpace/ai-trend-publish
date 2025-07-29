@@ -1,6 +1,5 @@
 /**
- * 图片生成器接口
- */
+ * 图片生成器接�? */
 import { Buffer } from "node:buffer";
 export interface ImageGenerator {
   /**
@@ -16,21 +15,18 @@ export interface ImageGenerator {
   /**
    * 生成图片
    * @param options 生成选项
-   * @returns 生成结果（可能是Buffer或URL）
-   */
+   * @returns 生成结果（可能是Buffer或URL�?   */
   generate(options: any): Promise<Buffer | string>;
 
   /**
-   * 将生成的图片保存到文件
-   * @param options 生成选项
+   * 将生成的图片保存到文�?   * @param options 生成选项
    * @param outputPath 输出路径
    */
   saveToFile(options: any, outputPath: string): Promise<void>;
 }
 
 /**
- * 图片生成器类型
- */
+ * 图片生成器类�? */
 export enum ImageGeneratorType {
   TEXT_LOGO = "TEXT_LOGO",
   PDD920_LOGO = "PDD920_LOGO",
@@ -39,8 +35,7 @@ export enum ImageGeneratorType {
 }
 
 /**
- * 图片生成器类型映射
- */
+ * 图片生成器类型映�? */
 export interface ImageGeneratorTypeMap {
   [ImageGeneratorType.TEXT_LOGO]:
     import("@src/providers/image-gen/text-logo.ts").TextLogoGenerator;

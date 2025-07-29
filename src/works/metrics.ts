@@ -1,4 +1,4 @@
-import { Logger } from "@zilla/logger";
+import { Logger } from "@src/utils/logger-adapter.ts";
 
 const logger = new Logger("workflow-metrics");
 
