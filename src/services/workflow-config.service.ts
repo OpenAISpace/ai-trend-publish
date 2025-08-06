@@ -28,10 +28,8 @@ export class WorkflowConfigService {
       // - "weixin-hellogithub-workflow"
       const workflowType = await ConfigManager.getInstance().get<string>(
         `${dayOfWeek}_of_week_workflow`,
-      );
-      return workflowType
-        ? WorkflowType[workflowType as keyof typeof WorkflowType]
-        : WorkflowType.WeixinArticle;
+      ) as WorkflowType;
+      return workflowType ?? WorkflowType.WeixinArticle
     } catch (error) {
       console.error("获取工作流配置失败:", error);
       return WorkflowType.WeixinArticle;
