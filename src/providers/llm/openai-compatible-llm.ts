@@ -16,7 +16,7 @@ export class OpenAICompatibleLLM implements LLMProvider {
   constructor(
     private configKeyPrefix: string = "",
     private configManager: ConfigManager = ConfigManager.getInstance(),
-    private specifiedModel?: string,
+    private specifiedModel?: string
   ) {
     this.httpClient = HttpClient.getInstance();
   }
@@ -27,19 +27,19 @@ export class OpenAICompatibleLLM implements LLMProvider {
 
   async refresh(): Promise<void> {
     this.baseURL = await this.configManager.get(
-      `${this.configKeyPrefix}BASE_URL`,
+      `${this.configKeyPrefix}BASE_URL`
     );
     this.token = await this.configManager.get(`${this.configKeyPrefix}API_KEY`);
 
     // 获取模型配置，支持多模型格式 "model1|model2|model3"
     const modelConfig =
-      await this.configManager.get(`${this.configKeyPrefix}MODEL`) ||
+      (await this.configManager.get(`${this.configKeyPrefix}MODEL`)) ||
       "gpt-3.5-turbo";
-    this.availableModels = (modelConfig as string).split("|").map((
-      model: string,
-    ) => model.trim());
+    this.availableModels = (modelConfig as string)
+      .split("|")
+      .map((model: string) => model.trim());
 
-    // 如果指定了特定模型，使用指定的模型，否则使用第一个可用模�?
+    // 如果指定了特定模型，使用指定的模型，否则使用第一个可用模?
     this.defaultModel = this.specifiedModel || this.availableModels[0];
 
     if (!this.baseURL) {
@@ -53,13 +53,13 @@ export class OpenAICompatibleLLM implements LLMProvider {
     const isHealthy = await this.httpClient.healthCheck(this.baseURL);
     if (!isHealthy) {
       console.warn(
-        `警告: LLM服务 ${this.baseURL} 健康检查失败，可能无法正常访问`,
+        `警告: LLM服务 ${this.baseURL} 健康检查失败，可能无法正常访问`
       );
     }
   }
 
   /**
-   * 设置使用的模�?
+   * 设置使用的模?
    * @param model 模型名称
    */
   public setModel(model: string): void {
@@ -67,13 +67,13 @@ export class OpenAICompatibleLLM implements LLMProvider {
       this.defaultModel = model;
     } else {
       console.warn(
-        `警告: 模型 ${model} 不在可用模型列表中，将使用默认模�?${this.defaultModel}`,
+        `警告: 模型 ${model} 不在可用模型列表中，将使用默认模?${this.defaultModel}`
       );
     }
   }
 
   /**
-   * 获取当前使用的模�?
+   * 获取当前使用的模?
    * @returns 当前模型名称
    */
   public getModel(): string {
@@ -90,7 +90,7 @@ export class OpenAICompatibleLLM implements LLMProvider {
 
   async createChatCompletion(
     messages: ChatMessage[],
-    options: ChatCompletionOptions = {},
+    options: ChatCompletionOptions = {}
   ): Promise<any> {
     try {
       // 使用HttpClient进行请求，自动处理重试和超时
@@ -98,7 +98,7 @@ export class OpenAICompatibleLLM implements LLMProvider {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.token}`,
+          Authorization: `Bearer ${this.token}`,
         },
         body: JSON.stringify({
           model: options.model || this.defaultModel,
@@ -109,9 +109,9 @@ export class OpenAICompatibleLLM implements LLMProvider {
           stream: options.stream ?? false,
           response_format: options.response_format,
         }),
-        timeout: 60000, // 60秒超�?
-        retries: 3, // 最多重�?�?
-        retryDelay: 1000, // 重试间隔1�?
+        timeout: 60000,
+        retries: 3,
+        retryDelay: 1000,
       });
     } catch (error) {
       throw new Error(`创建聊天完成失败: ${(error as Error).message}`);

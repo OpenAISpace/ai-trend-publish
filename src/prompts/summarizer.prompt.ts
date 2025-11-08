@@ -1,6 +1,4 @@
-import db from "@src/db/db";
-import { prompts } from "@src/db/schema";
-import { eq } from "drizzle-orm";
+import { PromptService } from "@src/services/prompt.service.ts";
 
 export interface SummarizerPromptParams {
   content: string;
@@ -9,41 +7,19 @@ export interface SummarizerPromptParams {
   maxLength?: number;
 }
 
+const promptService = PromptService.getInstance();
+
 export const getSummarizerSystemPrompt = async (): Promise<string> => {
-  const prompt = await db
-    .select()
-    .from(prompts)
-    .where(eq(prompts.promptId, "polish"))
-    .limit(1);
-
-  if (prompt.length > 0 && prompt[0].content) {
-    return (
-      prompt[0].content +
-      `请只返回JSON格式数据，格式如下：
-    {
-        "title": "专业的标题",
-        "content": "扩充和完善后的内容",
-        "keywords": ["关键词1", "关键词2", "关键词3"],
-        "score": 85.50
-    }`
-    );
-  }
-
-  return `你是一个专业的内容创作者和摘要生成器。你的任务是：
-    1. 理解原始内容的核心观点和背景
-    2. 基于原始内容进行优化，补充相关的背景信息、技术细节或实际应用场景
-    3. 确保优化后的内容准确、专业，并保持行文流畅
-    4. 生成一个专业的标题和3-5个关键词
-    5. 标题要求能够吸引读者，能够概括内容的核心观点，同时具有新闻性质，避免营销或广告语气
-    6. 生成一个0-100的分数，表示内容的重要性和价值，分数越高，表示内容越重要和有价值，同时越可能被读者关注，同时具有区分度，不应该分数很集中，精确到小数点后两位
-
-    请只返回JSON格式数据，格式如下：
-    {
-        "title": "专业的标题",
-        "content": "扩充和完善后的内容",
-        "keywords": ["关键词1", "关键词2", "关键词3"],
-        "score": 85.50
-    }`;
+  const base = await promptService.getPromptContent("polish");
+  const jsonHint = `请只返回JSON格式数据，格式如下：
+{
+    "title": "专业的标题",
+    "content": "扩充和完善后的内容",
+    "keywords": ["关键词1", "关键词2", "关键词3"],
+    "score": 85.50
+}
+注意：最终回答必须严格输出为 json 格式（小写 json 关键字），不可包含额外说明。`;
+  return `${base}${jsonHint}`;
 };
 
 export const getSummarizerUserPrompt = ({
@@ -52,42 +28,40 @@ export const getSummarizerUserPrompt = ({
   minLength = 200,
   maxLength = 300,
 }: SummarizerPromptParams): string => {
-  return `请分析以下内容，在保持原意的基础上进行专业的扩充和完善，使用${language}，完善后的内容不少于${minLength}字，不超过${maxLength}字：\n\n${content}\n\n
-    要求：
-    1. 保持专业性，可以适当补充相关的技术细节、应用场景或行业背景
-    2. 注意内容的连贯性和可读性
-    3. 确保扩充的内容不含无效信息，提供有价值的深度内容
-    4. 关键字的长度不超过4个字符
-    5. 内容风格自然流畅，避免AI生成痕迹，不使用"根据以上信息"等过渡词，采用新闻报道风格
-    6. 内容格式为纯文本，不使用markdown语法
-    7. 适当添加换行标记（<next_paragraph />），提高可读性
-    8. 必要时使用加粗（<strong> ** </strong>）突出重点
-    9. 必要时使用斜体（<em> ** </em>）强调内容
-    10. 必要时使用无序列表（<ul> ** </ul>）组织信息
-    11. 必要时使用有序列表（<ol> ** </ol>）呈现步骤或排序内容
-    `;
+  return `请分析以下内容，在保持原意的基础上进行专业化扩写，使用${language}输出，最终正文不少于${minLength}字且不超过${maxLength}字：
+
+=== 原始内容 ===
+${content}
+
+=== 执行要求 ===
+1. 结合上下文补充必要的背景、数据或案例，保证观点准确；
+2. 语言需客观、克制、专业，符合科技媒体风格；
+3. 合理拆分段落，使用 <. /> 作为换段标记；
+4. 关键信息可使用 <strong>...</strong> 加粗，概念解释可使用 <em>...</em>；
+5. 如需列举要点，使用 <ul>...</ul> 或 <ol>...</ol>；
+6. 不使用 Markdown 语法，不输出「总结」「综上」等模板化句式；
+7. 关键词控制在 6 个字以内，聚焦专业名词；
+8. 如原文包含图片或数据，可在正文合适位置加以描述；
+9. 严禁添加未证实的信息或主观推断；
+10. 若原文存在错误，请在润色后予以纠正但不直接指出；
+11. 保持整体语气统一，结尾自然收束。`;
 };
 
 export const getTitleSystemPrompt = (): string => {
-  return `你是一个专业的内容创作者和标题生成器。你的任务是：
-    1. 从内容中提炼最核心、最有价值的信息
-    2. 生成一个引人注目且专业的标题
-    3. 标题要简洁明了，不超过20个字
-    4. 标题要准确反映内容的核心观点
-    5. 标题要具有新闻性质，避免营销或广告语气
-    6. 标题应当包含关键词，提高搜索引擎可见性
-    7. 标题风格要保持一致性，符合行业专业标准`;
+  return `你是一名科技媒体标题编辑，需要为内容生成兼具新闻性与点击率的中文标题。
+请遵循以下原则：
+1. 标题长度 12-18 个汉字，体现核心价值；
+2. 使用事实与数据说话，避免夸张与营销化语气；
+3. 适度包含关键词，提升可检索性；
+4. 不得包含表情、英文缩写或无意义符号；
+5. 确保与正文观点一致，不误导读者。`;
 };
 
 export const getTitleUserPrompt = ({
   content,
   language = "中文",
 }: SummarizerPromptParams): string => {
-  return `请为以下内容生成一个专业的${language}标题，标题应当简洁有力，能够吸引目标读者点击阅读：\n\n${content}\n\n
-  要求：
-  1. 标题长度控制在20字以内
-  2. 包含内容中的核心关键词
-  3. 使用新闻报道风格，避免营销语气
-  4. 准确反映内容主旨，不夸大或误导
-  5. 只返回标题，不要返回其他内容`;
+  return `请基于以下内容生成一个 ${language} 标题，满足上方所有规则，只需输出标题本身：
+
+${content}`;
 };

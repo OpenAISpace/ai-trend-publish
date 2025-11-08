@@ -2,7 +2,7 @@ import {
   WorkflowDashboardService,
   type WorkflowScheduleDTO,
 } from "@src/services/workflow-dashboard.service.ts";
-import { WorkflowType } from "@src/services/workflow-factory.ts";
+import { WorkflowType } from "@src/types/workflows.ts";
 import { triggerWorkflow } from "@src/controllers/workflow.controller.ts";
 import {
   errorResponse,

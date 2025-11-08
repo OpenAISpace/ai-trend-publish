@@ -8,7 +8,7 @@ import {
   workflowResults,
   workflowSchedules,
 } from "@src/db/schema.ts";
-import { WorkflowType } from "@src/services/workflow-factory.ts";
+import { WorkflowType } from "@src/types/workflows.ts";
 import {
   WORKFLOW_PRESETS,
   WORKFLOW_PRESET_MAP,
@@ -103,7 +103,10 @@ export interface DashboardSnapshotDTO {
 }
 
 const READONLY_ENV_KEYS = ["SERVER_API_KEY"];
-const CONFIG_CATEGORY_MAP: Record<string, { category: string; description?: string }> = {
+const CONFIG_CATEGORY_MAP: Record<
+  string,
+  { category: string; description?: string }
+> = {
   DEFAULT_LLM_PROVIDER: { category: "llm" },
   FIRE_CRAWL_API_KEY: { category: "crawler" },
   X_API_BEARER_TOKEN: { category: "crawler" },
@@ -127,6 +130,23 @@ export class WorkflowDashboardService {
       WorkflowDashboardService.instance = new WorkflowDashboardService();
     }
     return WorkflowDashboardService.instance;
+  }
+
+  private formatTimestamp(date: Date) {
+    return date.toISOString().slice(0, 19).replace("T", " ");
+  }
+
+  private sanitizePreview(value?: string | null, limit = 220) {
+    if (!value) return null;
+    const plain = value
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!plain) return null;
+    return plain.length > limit ? `${plain.slice(0, limit)}...` : plain;
   }
 
   async ensureDefaultSchedules(): Promise<void> {
@@ -278,7 +298,7 @@ export class WorkflowDashboardService {
       status: "running",
       trigger: input.trigger,
       payload: input.payload ?? null,
-      startedAt: startedAt.toISOString().slice(0, 19).replace("T", " "),
+      startedAt: this.formatTimestamp(startedAt),
     });
 
     return {
@@ -310,7 +330,7 @@ export class WorkflowDashboardService {
       .update(workflowRuns)
       .set({
         status,
-        finishedAt: finishedAt.toISOString().slice(0, 19).replace("T", " "),
+        finishedAt: this.formatTimestamp(finishedAt),
         durationMs: durationMs ?? undefined,
         resultSummary,
       })
@@ -324,6 +344,33 @@ export class WorkflowDashboardService {
         durationMs
       );
     }
+  }
+
+  async recordWorkflowResult(input: {
+    workflowId: WorkflowType;
+    workflowName?: string;
+    status: WorkflowStatus;
+    preview?: string | null;
+    outputUrl?: string | null;
+    metadata?: Record<string, unknown> | null;
+  }) {
+    const workflowName =
+      input.workflowName ??
+      WORKFLOW_PRESET_MAP.get(input.workflowId)?.name ??
+      input.workflowId;
+    const generatedAt = this.formatTimestamp(new Date());
+    const preview = this.sanitizePreview(input.preview);
+
+    await db.insert(workflowResults).values({
+      id: crypto.randomUUID(),
+      workflowId: input.workflowId,
+      workflowName,
+      status: input.status,
+      generatedAt,
+      outputUrl: input.outputUrl ?? null,
+      preview: preview ?? null,
+      metadata: input.metadata ?? null,
+    });
   }
 
   private async updateScheduleStats(
@@ -350,7 +397,7 @@ export class WorkflowDashboardService {
     await db
       .update(workflowSchedules)
       .set({
-        lastRunAt: finishedAt.toISOString(),
+        lastRunAt: finishedAt.toISOString().slice(0, 19).replace("T", " "),
         lastDurationMs: durationMs,
         successCount,
         failureCount,
@@ -498,14 +545,18 @@ export class WorkflowDashboardService {
         description: item.description ?? null,
         scope: item.scope ?? "db",
         isEditable: item.isEditable === false ? 0 : 1,
-        category: item.category ?? CONFIG_CATEGORY_MAP[item.key]?.category ?? "general",
+        category:
+          item.category ?? CONFIG_CATEGORY_MAP[item.key]?.category ?? "general",
       })
       .onDuplicateKeyUpdate({
         set: {
           description: item.description ?? null,
           scope: item.scope ?? "db",
           isEditable: item.isEditable === false ? 0 : 1,
-          category: item.category ?? CONFIG_CATEGORY_MAP[item.key]?.category ?? "general",
+          category:
+            item.category ??
+            CONFIG_CATEGORY_MAP[item.key]?.category ??
+            "general",
         },
       });
   }

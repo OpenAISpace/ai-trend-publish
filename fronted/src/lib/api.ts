@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ConfigItem,
   DashboardSnapshot,
   WorkflowDefinition,
@@ -14,31 +14,30 @@ const sampleConfigs: ConfigItem[] = [
   {
     key: "SERVER_API_KEY",
     value: "******",
-    description: "JSON-RPC server access token",
+    description: "Console passphrase (read-only)",
     scope: "env",
     isEditable: false,
   },
   {
-    key: "1_of_week_workflow",
-    value: "weixin-article-workflow",
-    description: "Workflow executed on Monday",
+    key: "AI_SUMMARIZER_LLM_PROVIDER",
+    value: "DEEPSEEK:deepseek-chat",
+    description: "Default LLM provider used by the summarizer",
     scope: "db",
     isEditable: true,
   },
   {
-    key: "RSS_DAILY_DIGEST_FEEDS",
-    value: '["/weixin/aispace"]',
-    description: "Daily RSS digest feed list",
+    key: "FIRE_CRAWL_API_KEY",
+    value: "fc_live_xxx",
+    description: "Firecrawl crawl token",
     scope: "db",
     isEditable: true,
   },
 ];
-
 const sampleWorkflows: WorkflowDefinition[] = [
   {
     id: "weixin-article-workflow",
-    name: "Weixin Article",
-    description: "Collect daily tech content and publish to WeChat",
+    name: "WeChat Daily Digest",
+    description: "Aggregate Firecrawl/Twitter sources and push to WeChat",
     type: "weixin-article-workflow",
     status: "idle",
     schedule: {
@@ -57,8 +56,8 @@ const sampleWorkflows: WorkflowDefinition[] = [
   },
   {
     id: "weixin-aibench-workflow",
-    name: "Weixin AI Bench",
-    description: "Sync and summarize AIBench leaderboard updates",
+    name: "AIBench Leaderboard",
+    description: "Sync the latest LLM leaderboard and publish a recap",
     type: "weixin-aibench-workflow",
     status: "running",
     schedule: {
@@ -77,8 +76,8 @@ const sampleWorkflows: WorkflowDefinition[] = [
   },
   {
     id: "weixin-hellogithub-workflow",
-    name: "Hello GitHub Picks",
-    description: "Summarize trending HelloGitHub repositories",
+    name: "HelloGitHub Picks",
+    description: "Summarize trending GitHub repos and push a briefing",
     type: "weixin-hellogithub-workflow",
     status: "queued",
     schedule: {
@@ -96,12 +95,11 @@ const sampleWorkflows: WorkflowDefinition[] = [
     },
   },
 ];
-
 const sampleRuns: WorkflowRun[] = [
   {
     id: "run-20241108-001",
     workflowId: "weixin-aibench-workflow",
-    workflowName: "Weixin AI Bench",
+    workflowName: "AIBench Leaderboard",
     startedAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
     finishedAt: new Date(Date.now() - 1000 * 60 * 60 * 2.7).toISOString(),
     status: "success",
@@ -109,7 +107,7 @@ const sampleRuns: WorkflowRun[] = [
     steps: [
       {
         stepId: "fetch-bench",
-        name: "Fetch latest metrics",
+        name: "Fetch benchmark data",
         status: "success",
         durationMs: 12000,
         attempts: 1,
@@ -128,43 +126,42 @@ const sampleRuns: WorkflowRun[] = [
     ],
   },
   {
-    id: "run-20241107-004",
-    workflowId: "weixin-hellogithub-workflow",
-    workflowName: "Hello GitHub Picks",
-    startedAt: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
-    finishedAt: new Date(Date.now() - 1000 * 60 * 60 * 25.5).toISOString(),
+    id: "run-20241108-002",
+    workflowId: "weixin-article-workflow",
+    workflowName: "WeChat Daily Digest",
+    startedAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
+    finishedAt: new Date(Date.now() - 1000 * 60 * 150).toISOString(),
     status: "failed",
-    trigger: "cron",
-    resultSummary: "GitHub API quota exceeded",
+    trigger: "manual",
+    resultSummary: "WeChat API returned 401, please verify App Secret",
     steps: [
       {
-        stepId: "fetch-trending",
-        name: "Pull trending repositories",
+        stepId: "fetch-sources",
+        name: "Fetch sources",
         status: "success",
-        durationMs: 15000,
+        durationMs: 6200,
         attempts: 1,
-        startedAt: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
-        finishedAt: new Date(Date.now() - 1000 * 60 * 60 * 25.8).toISOString(),
+        startedAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
+        finishedAt: new Date(Date.now() - 1000 * 60 * 178).toISOString(),
       },
       {
-        stepId: "summarize",
-        name: "Write recommendations",
+        stepId: "publish",
+        name: "Publish to WeChat",
         status: "failure",
-        durationMs: 6000,
-        attempts: 3,
-        error: "GitHub API quota exceeded",
-        startedAt: new Date(Date.now() - 1000 * 60 * 60 * 25.8).toISOString(),
-        finishedAt: new Date(Date.now() - 1000 * 60 * 60 * 25.7).toISOString(),
+        durationMs: 2000,
+        attempts: 2,
+        error: "401 Unauthorized",
+        startedAt: new Date(Date.now() - 1000 * 60 * 175).toISOString(),
+        finishedAt: new Date(Date.now() - 1000 * 60 * 150).toISOString(),
       },
     ],
   },
 ];
-
 const sampleResults: WorkflowResult[] = [
   {
     id: "result-20241108-001",
     workflowId: "weixin-article-workflow",
-    workflowName: "Weixin Article",
+    workflowName: "WeChat Daily Digest",
     generatedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
     status: "success",
     preview:
@@ -177,55 +174,40 @@ const sampleResults: WorkflowResult[] = [
   {
     id: "result-20241107-003",
     workflowId: "weixin-aibench-workflow",
-    workflowName: "Weixin AI Bench",
+    workflowName: "AIBench Leaderboard",
     generatedAt: new Date(Date.now() - 1000 * 60 * 60 * 20).toISOString(),
     status: "success",
-    preview: "AIBench adds Claude 3.5 Sonnet with a 6% score boost",
+    preview: "Claude 3.5 Sonnet climbs 6% while MiniCPM ties GPT-4o-mini",
   },
 ];
-
-const sampleDashboard: DashboardSnapshot = {
-  configs: sampleConfigs,
-  workflows: sampleWorkflows,
-  runs: sampleRuns,
-  results: sampleResults,
-};
-
 const samplePrompts: PromptDetail[] = [
   {
     id: "polish",
-    title: "润色提示词",
-    description: "示例：对文章段落进行润色整理的提示词。",
-    content: "请你扮演专业编辑，基于原文保持信息不变地润色句子……",
+    title: "Polish Prompt",
+    description: "Example prompt used when polishing long form content",
+    content: "You are a professional editor...",
   },
   {
     id: "ranker",
-    title: "排序提示词",
-    description: "示例：根据指标对候选素材进行排序的提示词。",
-    content: "请你按照给定权重对候选内容打分，并给出排序理由……",
+    title: "Ranking Prompt",
+    description: "Example prompt used when ranking candidates",
+    content: "You are a trend analyst...",
   },
 ].map((prompt) => ({
   ...prompt,
   size: prompt.content.length,
   updatedAt: new Date().toISOString(),
 }));
-
 const sampleDataSources: DataSourceRecord[] = [
-  { id: 1, platform: "weixin", identifier: "AISPACE-tech" },
-  { id: 2, platform: "github", identifier: "openai/trending" },
+  { id: 1, platform: "firecrawl", identifier: "https://news.ycombinator.com" },
+  { id: 2, platform: "twitter", identifier: "https://x.com/openai" },
 ];
 
 export class ApiClient {
   private apiKey: string;
-  private unlocked: boolean;
 
   constructor(session: Session) {
     this.apiKey = session.apiKey ?? "";
-    this.unlocked = session.unlocked;
-  }
-
-  private canCallRemote() {
-    return Boolean(this.unlocked && this.apiKey);
   }
 
   private headers(additional?: HeadersInit) {
@@ -242,12 +224,8 @@ export class ApiClient {
   private async request<T>(
     path: string,
     init?: RequestInit,
-    fallback?: T,
+    fallback?: T
   ): Promise<T> {
-    if (!this.canCallRemote()) {
-      if (fallback) return structuredClone(fallback);
-      throw new Error("API client is not configured");
-    }
     try {
       const response = await fetch(path.startsWith("/") ? path : `/${path}`, {
         ...init,
@@ -267,11 +245,15 @@ export class ApiClient {
   }
 
   fetchDashboard() {
-    return this.request<DashboardSnapshot>("api/dashboard", undefined, sampleDashboard);
+    return this.request<DashboardSnapshot>("api/dashboard", undefined);
   }
 
   fetchWorkflows() {
-    return this.request<WorkflowDefinition[]>("api/workflows", undefined, sampleWorkflows);
+    return this.request<WorkflowDefinition[]>(
+      "api/workflows",
+      undefined,
+      sampleWorkflows
+    );
   }
 
   fetchConfigs() {
@@ -279,66 +261,91 @@ export class ApiClient {
   }
 
   fetchRuns() {
-    return this.request<WorkflowRun[]>("api/workflows/runs", undefined, sampleRuns);
+    return this.request<WorkflowRun[]>(
+      "api/workflows/runs",
+      undefined,
+      sampleRuns
+    );
   }
 
   fetchResults() {
     return this.request<WorkflowResult[]>(
       "api/workflows/results",
       undefined,
-      sampleResults,
+      sampleResults
     );
   }
 
   fetchPrompts() {
-    return this.request<PromptDetail[]>("api/prompts", undefined, samplePrompts);
+    return this.request<PromptDetail[]>(
+      "api/prompts",
+      undefined,
+      samplePrompts
+    );
   }
 
   async updatePrompt(id: string, content: string) {
-    return await this.request<PromptDetail>(`api/prompts/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({ content }),
-    }, {
-      ...(samplePrompts.find((prompt) => prompt.id === id) ?? samplePrompts[0]),
-      content,
-      updatedAt: new Date().toISOString(),
-      size: content.length,
-    });
+    return await this.request<PromptDetail>(
+      `api/prompts/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ content }),
+      },
+      {
+        ...(samplePrompts.find((prompt) => prompt.id === id) ??
+          samplePrompts[0]),
+        content,
+        updatedAt: new Date().toISOString(),
+        size: content.length,
+      }
+    );
   }
 
   fetchDataSources() {
     return this.request<DataSourceRecord[]>(
       "api/data-sources",
       undefined,
-      sampleDataSources,
+      sampleDataSources
     );
   }
 
   async createDataSource(payload: { platform: string; identifier: string }) {
-    return await this.request<DataSourceRecord>("api/data-sources", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }, {
-      id: Date.now(),
-      platform: payload.platform,
-      identifier: payload.identifier,
-    });
+    return await this.request<DataSourceRecord>(
+      "api/data-sources",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      {
+        id: Date.now(),
+        platform: payload.platform,
+        identifier: payload.identifier,
+      }
+    );
   }
 
   async updateDataSource(
     id: number,
-    payload: { platform?: string; identifier?: string },
+    payload: { platform?: string; identifier?: string }
   ) {
-    await this.request(`api/data-sources/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(payload),
-    }, { ok: true });
+    await this.request(
+      `api/data-sources/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      },
+      { ok: true }
+    );
   }
 
   async deleteDataSource(id: number) {
-    await this.request(`api/data-sources/${id}`, {
-      method: "DELETE",
-    }, { ok: true });
+    await this.request(
+      `api/data-sources/${id}`,
+      {
+        method: "DELETE",
+      },
+      { ok: true }
+    );
   }
 
   async updateConfig(item: ConfigItem) {
@@ -348,14 +355,14 @@ export class ApiClient {
         method: "PUT",
         body: JSON.stringify(item),
       },
-      item,
+      item
     );
     return item;
   }
 
   async updateSchedule(
     workflowId: string,
-    schedule: Partial<WorkflowSchedule>,
+    schedule: Partial<WorkflowSchedule>
   ) {
     return await this.request<WorkflowSchedule>(
       `api/workflows/${workflowId}/schedule`,
@@ -363,8 +370,7 @@ export class ApiClient {
         method: "PUT",
         body: JSON.stringify(schedule),
       },
-      sampleWorkflows.find((wf) => wf.id === workflowId)?.schedule ??
-        schedule,
+      sampleWorkflows.find((wf) => wf.id === workflowId)?.schedule ?? schedule
     );
   }
 
@@ -384,7 +390,7 @@ export class ApiClient {
           clientRequestId: id,
         }),
       },
-      { result: "scheduled" },
+      { result: "scheduled" }
     );
   }
 }

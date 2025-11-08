@@ -16,8 +16,11 @@ import {
 import { WorkflowTerminateError } from "@src/works/workflow-error.ts";
 import { Logger } from "@src/utils/logger-adapter.ts";
 import { ImageGeneratorType } from "@src/providers/interfaces/image-gen.interface.ts";
+import { WorkflowDashboardService } from "@src/services/workflow-dashboard.service.ts";
+import type { WorkflowType } from "@src/types/workflows.ts";
 
 const logger = new Logger("weixin-aibench-workflow");
+const dashboardService = WorkflowDashboardService.getInstance();
 
 interface WeixinAIBenchWorkflowEnv {
   name: string;
@@ -50,50 +53,56 @@ export class WeixinAIBenchWorkflow extends WorkflowEntrypoint<
 
   async generateCoverImage(title: string): Promise<string> {
     // 生成封面图并获取URL
-    const imageGenerator = await ImageGeneratorFactory.getInstance()
-      .getGenerator(ImageGeneratorType.PDD920_LOGO);
+    const imageGenerator =
+      await ImageGeneratorFactory.getInstance().getGenerator(
+        ImageGeneratorType.PDD920_LOGO
+      );
     const imageResult = await imageGenerator.generate({
       t: "@AISPACE科技空间",
       text: title,
       type: "json",
     });
 
-    // 由于type为json，imageResult一定是包含url的对�?
+    // 由于type为json，imageResult一定是包含url的对?
     return imageResult as string;
   }
 
   async run(
     event: WorkflowEvent<WeixinAIBenchWorkflowParams>,
-    step: WorkflowStep,
+    step: WorkflowStep
   ): Promise<void> {
     try {
       logger.info(
-        `[工作流开始] 开始执行AI Benchmark数据处理, 当前工作流实例ID: ${this.env.id} 触发事件ID: ${event.id}`,
+        `[工作流开始] 开始执行AI Benchmark数据处理, 当前工作流实例ID: ${this.env.id} 触发事件ID: ${event.id}`
       );
 
       // 1. 获取模型性能数据
-      const modelData = await step.do("fetch-model-data", {
-        retries: { limit: 3, delay: "10 second", backoff: "exponential" },
-        timeout: "5 minutes",
-      }, async () => {
-        logger.info("[数据获取] 开始获取模型性能数据");
-        const data = await this.liveBenchAPI.getModelPerformance();
-        if (!data || Object.keys(data).length === 0) {
-          throw new WorkflowTerminateError("未获取到任何模型性能数据");
+      const modelData = await step.do(
+        "fetch-model-data",
+        {
+          retries: { limit: 3, delay: "10 second", backoff: "exponential" },
+          timeout: "5 minutes",
+        },
+        async () => {
+          logger.info("[数据获取] 开始获取模型性能数据");
+          const data = await this.liveBenchAPI.getModelPerformance();
+          if (!data || Object.keys(data).length === 0) {
+            throw new WorkflowTerminateError("未获取到任何模型性能数据");
+          }
+          return data;
         }
-        return data;
-      });
+      );
 
-      // 打印�?个模型性能数据
+      // 打印?个模型性能数据
       const head5Models = Object.entries(modelData).slice(0, 5);
-      logger.debug("[数据获取] �?个模型性能数据:", head5Models);
+      logger.debug("[数据获取] ?个模型性能数据:", head5Models);
 
       // 2. 找出性能最好的模型
       const topModel = await step.do("analyze-top-model", async () => {
-        const sorted = Object.entries(modelData)
-          .sort((a, b) =>
+        const sorted = Object.entries(modelData).sort(
+          (a, b) =>
             b[1].metrics["Global Average"] - a[1].metrics["Global Average"]
-          );
+        );
         if (sorted.length === 0) {
           throw new WorkflowTerminateError("无法确定排名最高的模型");
         }
@@ -106,9 +115,7 @@ export class WeixinAIBenchWorkflow extends WorkflowEntrypoint<
       // 3. 准备模板数据
       const templateData = await step.do("prepare-template-data", async () => {
         const data = {
-          title: `${topModelName}领跑！AI模型性能榜单 - ${
-            new Date().toLocaleDateString()
-          }`,
+          title: `${topModelName}领跑！AI模型性能榜单 - ${new Date().toLocaleDateString()}`,
           updateTime: new Date().toISOString(),
           categories: [] as CategoryData[],
           globalTop10: [] as ModelScore[],
@@ -130,45 +137,75 @@ export class WeixinAIBenchWorkflow extends WorkflowEntrypoint<
           timeout: "5 minutes",
         },
         async () => {
-          const title = `${topModelName}领跑�?{
+          const title = `${topModelName}领跑?{
             new Date().toLocaleDateString()
           } AI模型性能榜单`;
-          const imageTitle = `本周大模型排�?${topModelOrg}旗下大模型登顶`;
+          const imageTitle = `本周大模型排?${topModelOrg}旗下大模型登顶`;
           const html = await this.renderer.render(templateData);
 
           return { title, imageTitle, htmlContent: html };
-        },
+        }
       );
 
       // 5. 生成并上传封面图
-      const mediaId = await step.do("generate-cover", {
-        retries: { limit: 2, delay: "5 second", backoff: "exponential" },
-        timeout: "5 minutes",
-      }, async () => {
-        const imageUrl = await this.generateCoverImage(imageTitle);
-        return await this.publisher.uploadImage(imageUrl);
-      });
+      const mediaId = await step.do(
+        "generate-cover",
+        {
+          retries: { limit: 2, delay: "5 second", backoff: "exponential" },
+          timeout: "5 minutes",
+        },
+        async () => {
+          const imageUrl = await this.generateCoverImage(imageTitle);
+          return await this.publisher.uploadImage(imageUrl);
+        }
+      );
 
       // 6. 发布文章
-      const publishResult = await step.do("publish-article", {
-        retries: { limit: 3, delay: "10 second", backoff: "exponential" },
-        timeout: "5 minutes",
-      }, async () => {
-        logger.info("[发布] 发布到微信公众号");
-        return await this.publisher.publish(
-          htmlContent,
-          title,
-          title,
-          mediaId,
-        );
+      const publishResult = await step.do(
+        "publish-article",
+        {
+          retries: { limit: 3, delay: "10 second", backoff: "exponential" },
+          timeout: "5 minutes",
+        },
+        async () => {
+          logger.info("[发布] 发布到微信公众号");
+          return await this.publisher.publish(
+            htmlContent,
+            title,
+            title,
+            mediaId
+          );
+        }
+      );
+
+      await dashboardService.recordWorkflowResult({
+        workflowId: this.env.id as WorkflowType,
+
+        status: "success",
+
+        preview: htmlContent,
+
+        outputUrl: publishResult.url ?? null,
+
+        metadata: {
+          publishId: publishResult.publishId,
+
+          platform: publishResult.platform,
+
+          publishedAt: publishResult.publishedAt.toISOString(),
+
+          topModel: topModelName,
+
+          organization: topModelOrg,
+        },
       });
 
-      // 7. 完成报告  
+      // 7. 完成报告
       logger.info("[工作流] 工作流执行完成");
       logger.info("[发布] 发布结果:", publishResult);
       await this.notify.success(
         "AI Benchmark更新完成",
-        `已生成并发布最新的AI模型性能榜单\n发布状态: ${publishResult.status}`,
+        `已生成并发布最新的AI模型性能榜单\n发布状态: ${publishResult.status}`
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

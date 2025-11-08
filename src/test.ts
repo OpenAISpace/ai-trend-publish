@@ -1,8 +1,8 @@
 // deno-lint-ignore-file no-unused-vars
-import { WeixinArticleWorkflow } from "@src/services/weixin-article.workflow.ts";
+import { WeixinArticleWorkflow } from "@src/workflow/weixin-article.workflow";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
-import { WeixinAIBenchWorkflow } from "@src/services/weixin-aibench.workflow.ts";
-import { WeixinHelloGithubWorkflow } from "@src/services/weixin-hellogithub.workflow.ts";
+import { WeixinAIBenchWorkflow } from "@src/workflow/weixin-aibench.workflow";
+import { WeixinHelloGithubWorkflow } from "@src/workflow/weixin-hellogithub.workflow";
 import { Logger } from "@src/utils/logger-adapter.ts";
 import { configureLogger } from "@src/utils/logger-config.ts";
 
@@ -22,7 +22,7 @@ async function bootstrap() {
 
   const configManager = ConfigManager.getInstance();
   await configManager.initDefaultConfigSources();
-  
+
   logger.info("测试开始，日志系统已初始化");
 
   if (selected_workflow === WeixinAIBenchWorkflow) {

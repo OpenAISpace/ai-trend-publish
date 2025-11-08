@@ -8,10 +8,9 @@ import {
 import ejs from "ejs";
 
 /**
- * AI Benchmark模板渲染�?
+ * AI Benchmark模板渲染?
  */
-export class AIBenchTemplateRenderer
-  extends BaseTemplateRenderer<AIBenchTemplate> {
+export class AIBenchTemplateRenderer extends BaseTemplateRenderer<AIBenchTemplate> {
   constructor() {
     super("aibench");
     this.availableTemplates = ["default"];
@@ -29,31 +28,31 @@ export class AIBenchTemplateRenderer
   /**
    * 将API返回的模型性能数据转换为AIBenchTemplate格式
    * @param modelData API返回的模型性能数据
-   * @returns AIBenchTemplate格式的数�?
+   * @returns AIBenchTemplate格式的数?
    */
-  public transformData(
-    modelData: { [key: string]: ModelPerformance },
-  ): AIBenchTemplate {
+  public transformData(modelData: {
+    [key: string]: ModelPerformance;
+  }): AIBenchTemplate {
     // 创建分类映射
     const categoryIcons: { [key: string]: string } = {
-      "Reasoning": "🧠",
-      "Coding": "💻",
-      "Mathematics": "🔢",
+      Reasoning: "🧠",
+      Coding: "💻",
+      Mathematics: "🔢",
       "Data Analysis": "📊",
-      "Language": "🗣",
-      "IF": "🔍",
+      Language: "🗣",
+      IF: "🔍",
     };
 
-    // 初始化分类数�?
+    // 初始化分类数?
     const categories: CategoryData[] = Object.keys(categoryIcons).map(
       (name) => ({
         name,
         icon: categoryIcons[name],
         models: [],
-      }),
+      })
     );
 
-    // 处理所有模型数�?
+    // 处理所有模型数?
     const allModels: ModelScore[] = [];
 
     for (const [modelName, performance] of Object.entries(modelData)) {
@@ -122,12 +121,8 @@ export class AIBenchTemplateRenderer
    */
   protected async doRender(
     data: AIBenchTemplate,
-    template: string,
+    template: string
   ): Promise<string> {
-    return ejs.render(
-      template,
-      data,
-      { rmWhitespace: true },
-    );
+    return ejs.render(template, data, { rmWhitespace: true });
   }
 }

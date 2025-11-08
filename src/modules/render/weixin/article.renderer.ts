@@ -5,7 +5,7 @@ import { WeixinPublisher } from "@src/modules/publishers/weixin.publisher.ts";
 import { BaseTemplateRenderer } from "@src/modules/render/weixin/base.renderer.ts";
 
 /**
- * 文章模板渲染�?
+ * 文章模板渲染?
  */
 export class WeixinArticleTemplateRenderer extends BaseTemplateRenderer<
   WeixinTemplate[]
@@ -30,10 +30,10 @@ export class WeixinArticleTemplateRenderer extends BaseTemplateRenderer<
     const mediaUrls = article.media.map((m) => m.url);
     let mediaIndex = 0;
 
-    // 在段落之间插入图�?
+    // 在段落之间插入图?
     let processedContent = "";
 
-    // 第一张图片放在文章开�?
+    // 第一张图片放在文章开?
     if (mediaUrls.length > 0) {
       processedContent += `<img src="${mediaUrls[0]}" alt="文章配图" /><next_paragraph />`;
       mediaIndex++;
@@ -49,7 +49,7 @@ export class WeixinArticleTemplateRenderer extends BaseTemplateRenderer<
         mediaIndex++;
       }
 
-      // 如果不是最后一个段落，添加段落分隔�?
+      // 如果不是最后一个段落，添加段落分隔?
       if (index < paragraphs.length - 1) {
         processedContent += "<next_paragraph />";
       }
@@ -81,10 +81,6 @@ export class WeixinArticleTemplateRenderer extends BaseTemplateRenderer<
     template: string
   ): Promise<string> {
     const imageProcessor = new WeixinImageProcessor(new WeixinPublisher());
-    // 预处理每篇文�?插入图片到段落之�?
-    console.log(
-      `WeixinArticleTemplateRenderer doRender: ${data.length} articles`
-    );
     const processedData = data.map((article) =>
       this.processArticleContent(article)
     );
@@ -95,7 +91,6 @@ export class WeixinArticleTemplateRenderer extends BaseTemplateRenderer<
         article.content
       );
       article.content = content;
-      console.log(results);
     }
 
     return ejs.render(

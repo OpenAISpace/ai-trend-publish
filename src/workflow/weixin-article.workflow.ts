@@ -30,13 +30,16 @@ import { EmbeddingProvider } from "@src/providers/interfaces/embedding.interface
 import { EmbeddingFactory } from "@src/providers/embedding/embedding-factory.ts";
 import { EmbeddingProviderType } from "@src/providers/interfaces/embedding.interface.ts";
 import { VectorSimilarityUtil } from "@src/utils/VectorSimilarityUtil.ts";
+import { WorkflowDashboardService } from "@src/services/workflow-dashboard.service.ts";
+import type { WorkflowType } from "@src/types/workflows.ts";
 const logger = new Logger("weixin-article-workflow");
+const dashboardService = WorkflowDashboardService.getInstance();
 
 interface WeixinWorkflowEnv {
   name: string;
 }
 
-// 工作流参数类型定�?
+// 工作流参数类型定?
 interface WeixinWorkflowParams {
   sourceType?: "all" | "firecrawl" | "twitter";
   maxArticles?: number;
@@ -88,7 +91,7 @@ export class WeixinArticleWorkflow extends WorkflowEntrypoint<
       logger.info(
         `[工作流开始] 开始执行微信工作流, 当前工作流实例ID: ${this.env.id} 触发事件ID: ${event.id}`
       );
-      // 验证IP白名�?
+      // 验证IP白名?
       await step.do(
         "validate-ip-whitelist",
         {
@@ -111,7 +114,7 @@ export class WeixinArticleWorkflow extends WorkflowEntrypoint<
       );
       await this.notifier.info("工作流开始", "开始执行内容抓取和处理");
 
-      // 获取数据�?
+      // 获取数据?
       const sourceConfigs = await step.do("fetch-sources", async () => {
         const configs = await getDataSources();
         if (!configs.firecrawl) {
@@ -142,7 +145,7 @@ export class WeixinArticleWorkflow extends WorkflowEntrypoint<
         async () => {
           const contents: ScrapedContent[] = [];
 
-          // 创建抓取进度�?
+          // 创建抓取进度?
           const scrapeProgress = new cliProgress.SingleBar({
             format:
               "内容抓取进度 |{bar}| {percentage}% | {value}/{total} | {duration}s",
@@ -221,14 +224,14 @@ export class WeixinArticleWorkflow extends WorkflowEntrypoint<
             return allContents;
           }
 
-          // 初始�?embedding 模型
+          // 初始?embedding 模型
           this.embeddingModel =
             await EmbeddingFactory.getInstance().getProvider({
               providerType: EmbeddingProviderType.DASHSCOPE,
               model: "text-embedding-v3",
             });
 
-          // 获取所有已存在的向�?
+          // 获取所有已存在的向?
           const existingVectors = await this.vectorService.getByType("article");
           this.existingVectors = existingVectors.map((v) => ({
             vector: v.vector,
@@ -477,7 +480,7 @@ export class WeixinArticleWorkflow extends WorkflowEntrypoint<
       );
 
       // 8. 发布文章
-      await step.do(
+      const publishResult = await step.do(
         "publish-article",
         {
           retries: { limit: 3, delay: "10 second", backoff: "exponential" },
@@ -493,6 +496,28 @@ export class WeixinArticleWorkflow extends WorkflowEntrypoint<
           );
         }
       );
+
+      await dashboardService.recordWorkflowResult({
+        workflowId: this.env.id as WorkflowType,
+
+        status: "success",
+
+        preview: renderedTemplate,
+
+        outputUrl: publishResult.url ?? null,
+
+        metadata: {
+          publishId: publishResult.publishId,
+
+          platform: publishResult.platform,
+
+          publishedAt: publishResult.publishedAt.toISOString(),
+
+          totalSources,
+
+          stats: this.stats,
+        },
+      });
 
       // 9. 完成报告
       const summary = `
@@ -596,7 +621,7 @@ export class WeixinArticleWorkflow extends WorkflowEntrypoint<
       }
       return false;
     } catch (error) {
-      logger.error(`[去重] 检查重复失�? ${error}`);
+      logger.error(`[去重] 检查重复失? ${error}`);
       return false;
     }
   }

@@ -30,7 +30,7 @@ interface XunfeiResponse {
 }
 
 /**
- * 讯飞星火大模型API适配�?
+ * 讯飞星火大模型API适配?
  */
 export class XunfeiLLM implements LLMProvider {
   private baseURL = "https://spark-api-open.xf-yun.com/v1/chat/completions";
@@ -39,7 +39,7 @@ export class XunfeiLLM implements LLMProvider {
   private httpClient: HttpClient;
 
   constructor(
-    private configManager: ConfigManager = ConfigManager.getInstance(),
+    private configManager: ConfigManager = ConfigManager.getInstance()
   ) {
     this.httpClient = HttpClient.getInstance();
   }
@@ -49,18 +49,18 @@ export class XunfeiLLM implements LLMProvider {
   }
 
   async setModel(model: string): Promise<void> {
-    this.defaultModel = model
+    this.defaultModel = model;
   }
 
   async refresh(): Promise<void> {
     this.token = await this.configManager.get("XUNFEI_API_KEY");
     if (!this.token) {
-      throw new Error("讯飞API密钥未设置"); 
+      throw new Error("讯飞API密钥未设置");
     }
 
     // 检查API服务是否可用
     const isHealthy = await this.httpClient.healthCheck(
-      "https://spark-api-open.xf-yun.com",
+      "https://spark-api-open.xf-yun.com"
     );
     if (!isHealthy) {
       console.warn("警告: 讯飞API服务健康检查失败，可能无法正常访问");
@@ -70,12 +70,12 @@ export class XunfeiLLM implements LLMProvider {
   /**
    * 创建聊天完成
    * @param messages 消息数组
-   * @param options 可选参�?
+   * @param options 可选参?
    * @returns 聊天完成响应
    */
   async createChatCompletion(
     messages: ChatMessage[],
-    options: ChatCompletionOptions = {},
+    options: ChatCompletionOptions = {}
   ): Promise<any> {
     try {
       const xunfeiMessages: XunfeiMessage[] = messages.map((msg) => ({
@@ -83,9 +83,8 @@ export class XunfeiLLM implements LLMProvider {
         content: msg.content,
       }));
 
-      const enableWebSearch = options.stream === undefined
-        ? false
-        : options.stream;
+      const enableWebSearch =
+        options.stream === undefined ? false : options.stream;
 
       const response = await this.httpClient.request<XunfeiResponse>(
         this.baseURL,
@@ -93,7 +92,7 @@ export class XunfeiLLM implements LLMProvider {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${this.token}`,
+            Authorization: `Bearer ${this.token}`,
           },
           body: JSON.stringify({
             model: this.defaultModel,
@@ -110,10 +109,10 @@ export class XunfeiLLM implements LLMProvider {
               ],
             }),
           }),
-          timeout: 60000, // 60秒超�?
-          retries: 3, // 最多重�?�?
-          retryDelay: 1000, // 重试间隔1�?
-        },
+          timeout: 60000, // 60秒超?
+          retries: 3, // 最多重??
+          retryDelay: 1000, // 重试间隔1?
+        }
       );
 
       if (response.code !== 0) {
@@ -124,7 +123,7 @@ export class XunfeiLLM implements LLMProvider {
         throw new Error("没有可用的响应选项");
       }
 
-      // 转换为标准格式返�?
+      // 转换为标准格式返?
       return {
         id: response.sid,
         object: "chat.completion",
@@ -155,7 +154,7 @@ export class XunfeiLLM implements LLMProvider {
   async sendMessage(
     content: string,
     systemPrompt?: string,
-    enableWebSearch?: boolean,
+    enableWebSearch?: boolean
   ): Promise<string> {
     const messages: ChatMessage[] = [];
 

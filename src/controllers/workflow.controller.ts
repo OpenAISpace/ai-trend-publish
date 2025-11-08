@@ -1,4 +1,4 @@
-import { WorkflowType } from "@src/services/workflow-factory.ts";
+import { WorkflowType } from "@src/types/workflows.ts";
 import {
   WorkflowTrigger,
   WorkflowDashboardService,
@@ -8,10 +8,10 @@ import { runWorkflow } from "@src/services/workflow-runner.ts";
 const dashboardService = WorkflowDashboardService.getInstance();
 
 function isWorkflowType(value: unknown): value is WorkflowType {
-  return typeof value === "string" &&
-    Object.values<WorkflowType>(WorkflowType).includes(
-      value as WorkflowType,
-    );
+  return (
+    typeof value === "string" &&
+    Object.values<WorkflowType>(WorkflowType).includes(value as WorkflowType)
+  );
 }
 
 export interface TriggerWorkflowParams {
@@ -27,7 +27,7 @@ export async function triggerWorkflow({
 }: TriggerWorkflowParams) {
   if (!isWorkflowType(workflowType)) {
     throw new Error(
-      `无效的工作流类型。可用类型: ${Object.values(WorkflowType).join(", ")}`,
+      `无效的工作流类型。可用类型: ${Object.values(WorkflowType).join(", ")}`
     );
   }
 
@@ -39,5 +39,6 @@ export async function triggerWorkflow({
     trigger === "cron" || trigger === "api" ? trigger : "manual";
 
   await dashboardService.ensureDefaultSchedules();
-  return await runWorkflow(workflowType, normalizedTrigger, payload);
+  runWorkflow(workflowType, normalizedTrigger, payload);
+  return "success";
 }

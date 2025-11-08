@@ -1,13 +1,10 @@
-import { WeixinArticleWorkflow } from "@src/services/weixin-article.workflow.ts";
-import { WeixinAIBenchWorkflow } from "@src/services/weixin-aibench.workflow.ts";
-import { WeixinHelloGithubWorkflow } from "@src/services/weixin-hellogithub.workflow.ts";
+import { WeixinArticleWorkflow } from "@src/workflow/weixin-article.workflow";
+import { WeixinAIBenchWorkflow } from "@src/workflow/weixin-aibench.workflow";
+import { WeixinHelloGithubWorkflow } from "@src/workflow/weixin-hellogithub.workflow";
 import { WorkflowEntrypoint } from "@src/works/workflow.ts";
+import { WorkflowType } from "@src/types/workflows.ts";
 
-export enum WorkflowType {
-  WeixinArticle = "weixin-article-workflow",
-  WeixinAIBench = "weixin-aibench-workflow",
-  WeixinHelloGithub = "weixin-hellogithub-workflow",
-}
+export { WorkflowType } from "@src/types/workflows.ts";
 
 export function getWorkflow(type: WorkflowType): WorkflowEntrypoint {
   switch (type) {

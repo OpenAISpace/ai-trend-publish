@@ -1,6 +1,6 @@
 import cron, { ScheduledTask } from "node-cron";
 import { WorkflowDashboardService } from "@src/services/workflow-dashboard.service.ts";
-import { WorkflowType } from "@src/services/workflow-factory.ts";
+import { WorkflowType } from "@src/types/workflows.ts";
 import { runWorkflow } from "@src/services/workflow-runner.ts";
 import { Logger } from "@src/utils/logger-adapter.ts";
 

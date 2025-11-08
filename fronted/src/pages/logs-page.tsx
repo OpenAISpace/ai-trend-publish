@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatedPage } from "../components/animated-page";
 import { AppHeader } from "../components/layout/app-header";
@@ -9,10 +9,12 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import { Select } from "../components/ui/select";
 import { useSession } from "../lib/session";
 import { useApiClient } from "../lib/use-api-client";
 import { queryKeys } from "../lib/query-keys";
 import { useWorkflowLogs } from "../hooks/use-workflow-logs";
+import type { WorkflowDefinition } from "../types";
 
 const levelColor: Record<string, string> = {
   info: "border-white/10 text-foreground",
@@ -23,27 +25,51 @@ const levelColor: Record<string, string> = {
 
 export function LogsPage() {
   const { session } = useSession();
+  const api = useApiClient();
+  const [workflowFilter, setWorkflowFilter] = useState<string>("");
+
+  const { data: workflows } = useQuery({
+    queryKey: queryKeys.workflows(session),
+    queryFn: () => api.fetchWorkflows(),
+    enabled: session.unlocked,
+  });
 
   const { logs, connectionState, resetLogs } = useWorkflowLogs({
     url: "/ws/workflow-logs",
     token: session.apiKey,
+    workflowId: workflowFilter || undefined,
   });
 
   return (
     <>
-      <AppHeader title="实时日志" subtitle="追踪运行过程与告警" />
+      <AppHeader
+        title="实时日志"
+        subtitle="观察运行轨迹，定位失败原因，可按工作流筛选"
+      />
       <AnimatedPage>
         <Card>
           <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
+              <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
                 WebSocket
               </p>
               <CardTitle className="text-xl">
                 状态：{connectionState.toUpperCase()}
               </CardTitle>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
+              <Select
+                className="w-56"
+                value={workflowFilter}
+                onChange={(e) => setWorkflowFilter(e.target.value)}
+              >
+                <option value="">全部工作流</option>
+                {(workflows ?? []).map((workflow: WorkflowDefinition) => (
+                  <option key={workflow.id} value={workflow.id}>
+                    {workflow.name}
+                  </option>
+                ))}
+              </Select>
               <Button variant="ghost" onClick={resetLogs}>
                 清空
               </Button>
@@ -63,7 +89,7 @@ export function LogsPage() {
                       {log.workflowName ?? log.workflowId ?? "Workflow"}
                     </span>
                     <span>
-                      {new Date(log.timestamp).toLocaleTimeString("en-GB", {
+                      {new Date(log.timestamp).toLocaleTimeString("zh-CN", {
                         hour12: false,
                       })}
                     </span>

@@ -1,4 +1,5 @@
-import { getWorkflow, WorkflowType } from "@src/services/workflow-factory.ts";
+import { WorkflowType } from "@src/types/workflows.ts";
+import { getWorkflow } from "@src/services/workflow-factory.ts";
 import {
   WorkflowDashboardService,
   WorkflowTrigger,
@@ -31,6 +32,7 @@ export async function runWorkflow(
       trigger,
     });
     const finishedAt = new Date();
+    logger.info("工作流运行成功");
     await dashboardService.recordRunEnd(runRecord.id, "success", {
       workflowId: workflowType,
       finishedAt,

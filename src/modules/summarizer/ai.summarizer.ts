@@ -12,6 +12,7 @@ import { LLMFactory } from "@src/providers/llm/llm-factory.ts";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import { RetryUtil } from "@src/utils/retry.util.ts";
 import { Logger } from "@src/utils/logger-adapter.ts";
+import { ChatMessage } from "@src/providers/interfaces/llm.interface";
 
 enum SummarizarSetting {
   AI_SUMMARIZER_LLM_PROVIDER = "AI_SUMMARIZER_LLM_PROVIDER",
@@ -47,27 +48,27 @@ export class AISummarizer implements ContentSummarizer {
           SummarizarSetting.AI_SUMMARIZER_LLM_PROVIDER
         )
       );
-      const response = await llm.createChatCompletion(
-        [
-          {
-            role: "system",
-            content: await getSummarizerSystemPrompt(),
-          },
-          {
-            role: "user",
-            content: getSummarizerUserPrompt({
-              content,
-              language: options?.language,
-              minLength: options?.minLength,
-              maxLength: options?.maxLength,
-            }),
-          },
-        ],
+
+      const messages: ChatMessage[] = [
         {
-          temperature: 0.7,
-          response_format: { type: "json_object" },
-        }
-      );
+          role: "system",
+          content: await getSummarizerSystemPrompt(),
+        },
+        {
+          role: "user",
+          content: getSummarizerUserPrompt({
+            content,
+            language: options?.language,
+            minLength: options?.minLength,
+            maxLength: options?.maxLength,
+          }),
+        },
+      ];
+
+      const response = await llm.createChatCompletion(messages, {
+        temperature: 0.7,
+        response_format: { type: "json_object" },
+      });
 
       const completion = response.choices[0]?.message?.content;
       if (!completion) {

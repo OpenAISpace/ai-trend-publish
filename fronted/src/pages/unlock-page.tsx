@@ -30,13 +30,13 @@ export function UnlockPage() {
         <Card className="glass-panel border-white/10">
           <CardHeader>
             <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
-              ACCESS REQUIRED
+              需要口令
             </p>
             <CardTitle className="text-3xl font-semibold text-foreground">
-              Unlock TrendFinder
+              输入 Server API Key
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Provide the Server API key to unlock workflow management features.
+              控制台功能受保护，请输入后端配置的 SERVER_API_KEY 以继续。
             </p>
           </CardHeader>
           <CardContent>
@@ -45,7 +45,7 @@ export function UnlockPage() {
                 <Label htmlFor="apiKey">Server API Key</Label>
                 <Input
                   id="apiKey"
-                  placeholder="Bearer token"
+                  placeholder="例如 trendfinder-secret"
                   value={form.apiKey}
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, apiKey: e.target.value }))
@@ -54,7 +54,7 @@ export function UnlockPage() {
                 />
               </div>
               <Button type="submit" className="w-full">
-                Enter Console
+                解锁控制台
               </Button>
             </form>
           </CardContent>

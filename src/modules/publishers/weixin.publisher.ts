@@ -23,8 +23,7 @@ export class WeixinPublisher implements ContentPublisher {
   private appId: string | undefined;
   private appSecret: string | undefined;
 
-  constructor() {
-  }
+  constructor() {}
 
   async refresh(): Promise<void> {
     this.appId = await ConfigManager.getInstance().get("WEIXIN_APP_ID");
@@ -47,15 +46,12 @@ export class WeixinPublisher implements ContentPublisher {
     try {
       await this.refresh();
       // 获取新token
-      const url =
-        `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${this.appId}&secret=${this.appSecret}`;
+      const url = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${this.appId}&secret=${this.appSecret}`;
       const response = await fetch(url).then((res) => res.json());
       const { access_token, expires_in } = response;
 
       if (!access_token) {
-        throw new Error(
-          "获取access_token失败: " + JSON.stringify(response),
-        );
+        throw new Error("获取access_token失败: " + JSON.stringify(response));
       }
 
       this.accessToken = {
@@ -75,11 +71,10 @@ export class WeixinPublisher implements ContentPublisher {
     article: string,
     title: string,
     digest: string,
-    mediaId: string,
+    mediaId: string
   ): Promise<WeixinDraft> {
     const token = await this.ensureAccessToken();
-    const url =
-      `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${token}`;
+    const url = `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${token}`;
 
     const articles = [
       {
@@ -89,13 +84,13 @@ export class WeixinPublisher implements ContentPublisher {
         content: article,
         thumb_media_id: mediaId,
         need_open_comment:
-          await ConfigManager.getInstance().get("NEED_OPEN_COMMENT") ===
-              "true"
+          (await ConfigManager.getInstance().get("NEED_OPEN_COMMENT")) ===
+          "true"
             ? 1
             : 0,
         only_fans_can_comment:
-          await ConfigManager.getInstance().get("ONLY_FANS_CAN_COMMENT") ===
-              "true"
+          (await ConfigManager.getInstance().get("ONLY_FANS_CAN_COMMENT")) ===
+          "true"
             ? 1
             : 0,
       },
@@ -124,7 +119,7 @@ export class WeixinPublisher implements ContentPublisher {
     }
   }
   /**
-   * 上传图片到微�?
+   * 上传图片到微?
    * @param imageUrl 图片URL
    * @returns 图片ID
    */
@@ -136,16 +131,15 @@ export class WeixinPublisher implements ContentPublisher {
     const imageBuffer = await fetch(imageUrl).then((res) => res.arrayBuffer());
 
     const token = await this.ensureAccessToken();
-    const url =
-      `https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=${token}&type=image`;
+    const url = `https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=${token}&type=image`;
 
     try {
-      // 创建FormData并添加图片数�?
+      // 创建FormData并添加图片数?
       const formData = new FormData();
       formData.append(
         "media",
         new Blob([imageBuffer], { type: "image/jpeg" }),
-        `image_${Math.random().toString(36).substring(2, 8)}.jpg`,
+        `image_${Math.random().toString(36).substring(2, 8)}.jpg`
       );
 
       const response = await fetch(url, {
@@ -171,31 +165,30 @@ export class WeixinPublisher implements ContentPublisher {
    * 上传图文消息内的图片获取URL
    * @param imageUrl 图片URL
    * @returns 图片URL
-   * @description 本接口所上传的图片不占用公众号的素材库中图片数量的限�?
+   * @description 本接口所上传的图片不占用公众号的素材库中图片数量的限?
    * 图片仅支持jpg/png格式，大小必须在1MB以下
    */
   async uploadContentImage(
     imageUrl: string,
-    imageBuffer?: Buffer,
+    imageBuffer?: Buffer
   ): Promise<string> {
     if (!imageUrl) {
       throw new Error("图片URL不能为空");
     }
 
     const token = await this.ensureAccessToken();
-    const url =
-      `https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token=${token}`;
+    const url = `https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token=${token}`;
 
     try {
-      // 创建FormData并添加图片数�?
+      // 创建FormData并添加图片数?
       const formData = new FormData();
 
       if (imageBuffer) {
-        // 如果提供了压缩后的图片buffer，直接使�?
+        // 如果提供了压缩后的图片buffer，直接使?
         formData.append(
           "media",
           new Blob([imageBuffer], { type: "image/jpeg" }),
-          `image_${Math.random().toString(36).substring(2, 8)}.jpg`,
+          `image_${Math.random().toString(36).substring(2, 8)}.jpg`
         );
       } else {
         // 否则下载原图
@@ -203,7 +196,7 @@ export class WeixinPublisher implements ContentPublisher {
         formData.append(
           "media",
           new Blob([buffer], { type: "image/jpeg" }),
-          `image_${Math.random().toString(36).substring(2, 8)}.jpg`,
+          `image_${Math.random().toString(36).substring(2, 8)}.jpg`
         );
       }
 
@@ -227,7 +220,7 @@ export class WeixinPublisher implements ContentPublisher {
   }
 
   /**
-   * 发布文章到微�?
+   * 发布文章到微?
    * @param article 文章内容
    * @param title 文章标题
    * @param digest 文章摘要
@@ -238,7 +231,7 @@ export class WeixinPublisher implements ContentPublisher {
     article: string,
     title: string,
     digest: string,
-    mediaId: string,
+    mediaId: string
   ): Promise<PublishResult> {
     try {
       // 上传草稿

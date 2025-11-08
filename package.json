@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
+    "dev": "bun run scripts/dev.ts",
     "dev:api": "bun run --watch src/index.ts",
     "start:api": "bun run src/index.ts",
     "start": "bun run frontend:build && bun run start:api",

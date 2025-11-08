@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import type { ServerWebSocket } from "bun";
 import { WORKFLOW_PRESET_MAP } from "@src/constants/workflows.ts";
-import { WorkflowType } from "@src/services/workflow-factory.ts";
+import { WorkflowType } from "@src/types/workflows.ts";
 
 export type WorkflowLogLevel = "debug" | "info" | "warn" | "error";
 

@@ -3,10 +3,11 @@ import { AIGithubItemDetail } from "@src/modules/render/weixin/interfaces/aigith
 import ejs from "ejs";
 
 /**
- * HelloGithub模板渲染�?
+ * HelloGithub模板渲染?
  */
-export class HelloGithubTemplateRenderer
-  extends BaseTemplateRenderer<AIGithubItemDetail[]> {
+export class HelloGithubTemplateRenderer extends BaseTemplateRenderer<
+  AIGithubItemDetail[]
+> {
   constructor() {
     super("hellogithub");
     this.availableTemplates = ["default"];
@@ -17,9 +18,7 @@ export class HelloGithubTemplateRenderer
    */
   protected async loadTemplates(): Promise<void> {
     this.templates = {
-      default: await this.getTemplateContent(
-        "templates/hellogithub.ejs",
-      ),
+      default: await this.getTemplateContent("templates/hellogithub.ejs"),
     };
   }
 
@@ -31,7 +30,7 @@ export class HelloGithubTemplateRenderer
    */
   protected async doRender(
     data: AIGithubItemDetail[],
-    template: string,
+    template: string
   ): Promise<string> {
     return ejs.render(
       template,
@@ -39,7 +38,7 @@ export class HelloGithubTemplateRenderer
         renderDate: new Date().toLocaleDateString(),
         items: data,
       },
-      { rmWhitespace: true },
+      { rmWhitespace: true }
     );
   }
 }

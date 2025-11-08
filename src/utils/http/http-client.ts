@@ -10,7 +10,8 @@ export class HttpError extends Error {
     public statusCode?: number,
     public response?: Response,
     public url?: string,
-    public method?: string
+    public method?: string,
+    public bodyText?: string,
   ) {
     super(message);
     this.name = "HttpError";
@@ -90,12 +91,19 @@ export class HttpClient {
         const response = await this.fetchWithTimeout(url, fetchOptions);
 
         if (!response.ok) {
+          let bodyText: string | undefined;
+          try {
+            bodyText = await response.text();
+          } catch {
+            bodyText = undefined;
+          }
           throw new HttpError(
-            `HTTP ${response.status} - ${response.statusText}`,
+            `HTTP ${response.status} - ${response.statusText}${bodyText ? ` | ${bodyText}` : ""}`,
             response.status,
             response,
             url,
-            fetchOptions.method || "GET"
+            fetchOptions.method || "GET",
+            bodyText,
           );
         }
 
@@ -109,7 +117,7 @@ export class HttpClient {
                 undefined,
                 undefined,
                 url,
-                fetchOptions.method || "GET"
+                fetchOptions.method || "GET",
               );
 
         const remainingAttempts = retries - attempt - 1;
@@ -121,6 +129,7 @@ export class HttpClient {
             attempt: attempt + 1,
             maxAttempts: retries,
             error: lastError,
+            option: options,
           }
         );
 

@@ -1,4 +1,4 @@
-import { WorkflowType } from "@src/services/workflow-factory.ts";
+import { WorkflowType } from "@src/types/workflows.ts";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 
 export interface DailyWorkflowConfig {

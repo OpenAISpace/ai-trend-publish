@@ -66,9 +66,10 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
           prompt_text_zh: options.prompt_text_zh,
           prompt_text_en: options.prompt_text_en,
           generate_mode: options.generate_mode,
-          generate_num: options.generate_mode === "generate"
-            ? (options.generate_num || 1)
-            : undefined,
+          generate_num:
+            options.generate_mode === "generate"
+              ? options.generate_num || 1
+              : undefined,
           auxiliary_parameters: options.auxiliary_parameters,
           lora_name: options.lora_name,
           wh_ratios: options.wh_ratios || "横版",
@@ -85,9 +86,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         throw new Error(
-          `阿里云API调用失败: ${
-            error.response?.data?.message || error.message
-          }`,
+          `阿里云API调用失败: ${error.response?.data?.message || error.message}`
         );
       }
       throw error;
@@ -115,14 +114,16 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     // 裁剪副标题
     if (options.sub_title && options.sub_title.length > 30) {
       console.warn(
-        `副标题超过30个字符，已自动裁剪。原副标题: ${options.sub_title}`,
+        `副标题超过30个字符，已自动裁剪。原副标题: ${options.sub_title}`
       );
       options.sub_title = options.sub_title.slice(0, 30);
     }
 
     // 裁剪正文
     if (options.body_text && options.body_text.length > 50) {
-      console.warn(`正文超过50个字符，已自动裁剪。原正文: ${options.body_text}`);
+      console.warn(
+        `正文超过50个字符，已自动裁剪。原正文: ${options.body_text}`
+      );
       options.body_text = options.body_text.slice(0, 50);
     }
 
@@ -131,10 +132,10 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
       throw new Error("中文或英文提示词至少需要提供一个");
     }
 
-    const promptLength = (options.prompt_text_zh?.length || 0) +
+    const promptLength =
+      (options.prompt_text_zh?.length || 0) +
       (options.prompt_text_en?.length || 0);
     if (promptLength > 50) {
-      console.warn("中英文提示词总长度超�?0个字符，将按比例裁剪");
       if (options.prompt_text_zh && options.prompt_text_en) {
         const ratio = 50 / promptLength;
         const zhLen = Math.floor(options.prompt_text_zh.length * ratio);
@@ -150,24 +151,18 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
 
     // 处理生成模式
     if (!["generate", "sr", "hrf"].includes(options.generate_mode)) {
-      console.warn(
-        `生成模式 "${options.generate_mode}" 无效，将使用默认�?"generate"`,
-      );
       options.generate_mode = "generate";
     }
 
     // 处理sr或hrf模式下的辅助参数
     if (options.generate_mode !== "generate" && !options.auxiliary_parameters) {
-      console.warn(
-        `${options.generate_mode}模式下需要auxiliary_parameters，将切换为generate模式`,
-      );
       options.generate_mode = "generate";
     }
 
     // 处理生成数量
     if (options.generate_mode === "generate" && options.generate_num) {
       if (![1, 2, 3, 4].includes(options.generate_num)) {
-        console.warn(`生成数量 ${options.generate_num} 无效，将使用默认�?1`);
+        console.warn(`生成数量 ${options.generate_num} 无效，将使用默认?1`);
         options.generate_num = 1;
       }
     }
@@ -209,7 +204,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     if (options.lora_weight !== undefined) {
       if (options.lora_weight < 0 || options.lora_weight > 1) {
         console.warn(
-          `lora_weight ${options.lora_weight} 超出范围[0-1]，将使用默认0.8`,
+          `lora_weight ${options.lora_weight} 超出范围[0-1]，将使用默认0.8`
         );
         options.lora_weight = 0.8;
       }
@@ -218,7 +213,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     if (options.ctrl_ratio !== undefined) {
       if (options.ctrl_ratio < 0 || options.ctrl_ratio > 1) {
         console.warn(
-          `ctrl_ratio ${options.ctrl_ratio} 超出范围[0-1]，将使用默认0.7`,
+          `ctrl_ratio ${options.ctrl_ratio} 超出范围[0-1]，将使用默认0.7`
         );
         options.ctrl_ratio = 0.7;
       }
@@ -227,7 +222,7 @@ export class AliyunWanxPosterGenerator extends BaseAliyunImageGenerator {
     if (options.ctrl_step !== undefined) {
       if (options.ctrl_step < 0 || options.ctrl_step > 1) {
         console.warn(
-          `ctrl_step ${options.ctrl_step} 超出范围[0-1]，将使用默认0.7`,
+          `ctrl_step ${options.ctrl_step} 超出范围[0-1]，将使用默认0.7`
         );
         options.ctrl_step = 0.7;
       }

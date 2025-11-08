@@ -14,9 +14,15 @@ const MIME_TYPES = new Map<string, string>([
   [".ico", "image/x-icon"],
 ]);
 
-function resolveDistRoot() {
+export function resolveDistRoot() {
   const configured = process.env.FRONTEND_DIST;
   return configured ? join(process.cwd(), configured) : DEFAULT_DIST_ROOT;
+}
+
+export async function frontendBundleExists() {
+  const distRoot = resolveDistRoot();
+  const indexFile = Bun.file(join(distRoot, "index.html"));
+  return await indexFile.exists();
 }
 
 export async function serveFrontendAsset(

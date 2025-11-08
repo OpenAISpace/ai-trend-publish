@@ -22,10 +22,11 @@ import {
   triggerWorkflowController,
   updateWorkflowScheduleController,
 } from "@src/controllers/workflows.controller.ts";
-import { WorkflowType } from "@src/services/workflow-factory.ts";
+import { WorkflowType } from "@src/types/workflows.ts";
 import { WorkflowLogGateway } from "@src/services/workflow-log.gateway.ts";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 import {
+  frontendBundleExists,
   isFrontendRoute,
   proxyFrontendDev,
   serveFrontendAsset,
@@ -60,6 +61,19 @@ app.use("/api/*", async (c, next) => {
   }
   return await next();
 });
+
+async function assertFrontendAssetsReady() {
+  try {
+    const exists = await frontendBundleExists();
+    if (!exists) {
+      console.warn(
+        "[frontend] 未检测到已构建的前端资源。请先运行 `bun run frontend:build` 或使用 `bun run dev` 启动联调流程。",
+      );
+    }
+  } catch (error) {
+    console.warn("[frontend] 检查静态资源失败:", error);
+  }
+}
 
 app.get("/api/config", async () => listConfigsController());
 
@@ -262,6 +276,7 @@ async function handleWebSocket(
 const honoFetch = app.fetch;
 
 export default function startServer(port = 8000) {
+  void assertFrontendAssetsReady();
   const server = Bun.serve({
     port,
     fetch: async (req, srv) => {
