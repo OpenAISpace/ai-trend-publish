@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { config, dataSources, vectorItems } from "@src/db/schema.ts";
+import { config, configMetadata, dataSources, prompts, vectorItems, workflowSchedules, workflowRuns, workflowRunSteps, workflowResults } from "@src/db/schema.ts";
 import { Logger } from "@src/utils/logger-adapter.ts";
 import process from "node:process";
 import dotenv from "dotenv";
@@ -32,8 +32,14 @@ const db = drizzle(poolConnection, {
   mode: "default",
   schema: {
     config: config,
+    configMetadata,
     dataSources: dataSources,
-    vectorItems
+    prompts,
+    vectorItems,
+    workflowSchedules,
+    workflowRuns,
+    workflowRunSteps,
+    workflowResults
   },
 });
 

@@ -7,8 +7,9 @@ import { BaseTemplateRenderer } from "@src/modules/render/weixin/base.renderer.t
 /**
  * 文章模板渲染�?
  */
-export class WeixinArticleTemplateRenderer
-  extends BaseTemplateRenderer<WeixinTemplate[]> {
+export class WeixinArticleTemplateRenderer extends BaseTemplateRenderer<
+  WeixinTemplate[]
+> {
   constructor() {
     super("article");
     this.availableTemplates = ["default", "modern", "tech", "mianpro"];
@@ -34,9 +35,7 @@ export class WeixinArticleTemplateRenderer
 
     // 第一张图片放在文章开�?
     if (mediaUrls.length > 0) {
-      processedContent += `<img src="${
-        mediaUrls[0]
-      }" alt="文章配图" /><next_paragraph />`;
+      processedContent += `<img src="${mediaUrls[0]}" alt="文章配图" /><next_paragraph />`;
       mediaIndex++;
     }
 
@@ -46,9 +45,7 @@ export class WeixinArticleTemplateRenderer
 
       // 如果还有图片，且不是最后一个段落，在段落后插入图片
       if (mediaIndex < mediaUrls.length && index < paragraphs.length - 1) {
-        processedContent += `<next_paragraph /><img src="${
-          mediaUrls[mediaIndex]
-        }" alt="文章配图" />`;
+        processedContent += `<next_paragraph /><img src="${mediaUrls[mediaIndex]}" alt="文章配图" />`;
         mediaIndex++;
       }
 
@@ -69,18 +66,10 @@ export class WeixinArticleTemplateRenderer
    */
   protected async loadTemplates(): Promise<void> {
     this.templates = {
-      default: await this.getTemplateContent(
-        "templates/article.ejs",
-      ),
-      modern: await this.getTemplateContent(
-        "templates/article.modern.ejs",
-      ),
-      tech: await this.getTemplateContent(
-        "templates/article.tech.ejs",
-      ),
-      mianpro: await this.getTemplateContent(
-        "templates/article.mianpro.ejs",
-      ),
+      default: await this.getTemplateContent("templates/article.ejs"),
+      modern: await this.getTemplateContent("templates/article.modern.ejs"),
+      tech: await this.getTemplateContent("templates/article.tech.ejs"),
+      mianpro: await this.getTemplateContent("templates/article.mianpro.ejs"),
     };
   }
 
@@ -89,12 +78,12 @@ export class WeixinArticleTemplateRenderer
    */
   public async doRender(
     data: WeixinTemplate[],
-    template: string,
+    template: string
   ): Promise<string> {
     const imageProcessor = new WeixinImageProcessor(new WeixinPublisher());
     // 预处理每篇文�?插入图片到段落之�?
     console.log(
-      `WeixinArticleTemplateRenderer doRender: ${data.length} articles`,
+      `WeixinArticleTemplateRenderer doRender: ${data.length} articles`
     );
     const processedData = data.map((article) =>
       this.processArticleContent(article)
@@ -103,7 +92,7 @@ export class WeixinArticleTemplateRenderer
     // 将图片上传到微信 并替换图片url
     for (const article of processedData) {
       const { content, results } = await imageProcessor.processContent(
-        article.content,
+        article.content
       );
       article.content = content;
       console.log(results);
@@ -114,7 +103,7 @@ export class WeixinArticleTemplateRenderer
       {
         articles: processedData,
       },
-      { rmWhitespace: true },
+      { rmWhitespace: true }
     );
   }
 }

@@ -1,4 +1,5 @@
 import { Logger } from "@src/utils/logger-adapter.ts";
+import { recordWorkflowRunStep } from "@src/services/workflow-run.store.ts";
 
 const logger = new Logger("workflow-metrics");
 
@@ -57,11 +58,11 @@ export class MetricsCollector {
       metric.status = "failure";
       metric.error = error.message;
       logger.error(
-        `Workflow ${workflowId} event ${eventId} failed: ${error.message}`,
+        `Workflow ${workflowId} event ${eventId} failed: ${error.message}`
       );
     } else {
       logger.info(
-        `Workflow ${workflowId} event ${eventId} completed successfully`,
+        `Workflow ${workflowId} event ${eventId} completed successfully`
       );
     }
 
@@ -73,7 +74,7 @@ export class MetricsCollector {
   recordStep(
     workflowId: string,
     eventId: string,
-    stepMetric: Omit<StepMetric, "duration">,
+    stepMetric: Omit<StepMetric, "duration">
   ): void {
     const workflowMetrics = this.metrics.get(workflowId);
     if (!workflowMetrics) return;
@@ -88,11 +89,31 @@ export class MetricsCollector {
     };
 
     metric.steps.push(fullStepMetric);
+    if (workflowId && eventId) {
+      const startedAt = new Date(stepMetric.startTime)
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+      const finishedAt = new Date(stepMetric.endTime)
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+      void recordWorkflowRunStep(eventId, {
+        stepId: stepMetric.stepId,
+        name: stepMetric.name,
+        status: stepMetric.status,
+        durationMs: duration,
+        attempts: stepMetric.attempts,
+        error: stepMetric.error,
+        startedAt,
+        finishedAt,
+      });
+    }
   }
 
   getWorkflowEventMetrics(
     workflowId: string,
-    eventId: string,
+    eventId: string
   ): WorkflowMetric | undefined {
     return this.metrics.get(workflowId)?.get(eventId);
   }
@@ -114,8 +135,8 @@ export class MetricsCollector {
     const totalSteps = steps.length;
     const failedSteps = steps.filter((s) => s.status === "failure").length;
     const totalAttempts = steps.reduce((sum, s) => sum + s.attempts, 0);
-    const avgDuration = steps.reduce((sum, s) => sum + s.duration, 0) /
-      totalSteps;
+    const avgDuration =
+      steps.reduce((sum, s) => sum + s.duration, 0) / totalSteps;
 
     return {
       totalSteps,

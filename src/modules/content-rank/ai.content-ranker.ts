@@ -19,11 +19,11 @@ export class ContentRanker {
   constructor() {
     this.llmFactory = LLMFactory.getInstance();
     this.configInstance = ConfigManager.getInstance();
-    this.configInstance.get("AI_CONTENT_RANKER_LLM_PROVIDER").then(
-      (provider) => {
+    this.configInstance
+      .get("AI_CONTENT_RANKER_LLM_PROVIDER")
+      .then((provider) => {
         logger.info(`Ranker当前使用的LLM模型: ${provider}`);
-      },
-    );
+      });
   }
 
   public async rankContents(contents: ScrapedContent[]): Promise<RankResult[]> {
@@ -31,31 +31,29 @@ export class ContentRanker {
       return [];
     }
 
-    return RetryUtil.retryOperation(
-      async () => {
-        const llmProvider = await this.llmFactory.getLLMProvider(
-          await this.configInstance.get("AI_CONTENT_RANKER_LLM_PROVIDER"),
-        );
-        const messages: ChatMessage[] = [
-          { role: "system", content: getSystemPrompt() },
-          { role: "user", content: getUserPrompt(contents) },
-        ];
+    return RetryUtil.retryOperation(async () => {
+      const llmProvider = await this.llmFactory.getLLMProvider(
+        await this.configInstance.get("AI_CONTENT_RANKER_LLM_PROVIDER")
+      );
+      const messages: ChatMessage[] = [
+        { role: "system", content: await getSystemPrompt() },
+        { role: "user", content: getUserPrompt(contents) },
+      ];
 
-        const response = await llmProvider.createChatCompletion(messages);
+      const response = await llmProvider.createChatCompletion(messages);
 
-        const result = response.choices?.[0]?.message?.content;
-        if (!result) {
-          throw new Error("未获取到有效的评分结果");
-        }
+      const result = response.choices?.[0]?.message?.content;
+      if (!result) {
+        throw new Error("未获取到有效的评分结果");
+      }
 
-        return parseRankingResult(result);
-      },
-    );
+      return parseRankingResult(result);
+    });
   }
 
   public async rankContentsBatch(
     contents: ScrapedContent[],
-    batchSize: number = 5,
+    batchSize: number = 5
   ): Promise<RankResult[]> {
     const results: RankResult[] = [];
 

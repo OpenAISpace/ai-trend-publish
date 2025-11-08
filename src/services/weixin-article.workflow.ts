@@ -43,8 +43,10 @@ interface WeixinWorkflowParams {
   forcePublish?: boolean;
 }
 
-export class WeixinArticleWorkflow
-  extends WorkflowEntrypoint<WeixinWorkflowEnv, WeixinWorkflowParams> {
+export class WeixinArticleWorkflow extends WorkflowEntrypoint<
+  WeixinWorkflowEnv,
+  WeixinWorkflowParams
+> {
   private scraper: Map<string, ContentScraper>;
   private summarizer: ContentSummarizer;
   private publisher: WeixinPublisher;
@@ -80,32 +82,34 @@ export class WeixinArticleWorkflow
 
   async run(
     event: WorkflowEvent<WeixinWorkflowParams>,
-    step: WorkflowStep,
+    step: WorkflowStep
   ): Promise<void> {
     try {
-
       logger.info(
-        `[工作流开始] 开始执行微信工作流, 当前工作流实例ID: ${this.env.id} 触发事件ID: ${event.id}`,
+        `[工作流开始] 开始执行微信工作流, 当前工作流实例ID: ${this.env.id} 触发事件ID: ${event.id}`
       );
-
       // 验证IP白名�?
-      await step.do("validate-ip-whitelist", {
-        retries: { limit: 3, delay: "10 second", backoff: "exponential" },
-        timeout: "10 minutes",
-      }, async () => {
-        const isWhitelisted = await this.publisher.validateIpWhitelist();
-        if (typeof isWhitelisted === "string") {
-          this.notifier.warning(
-            "IP白名单验证失败",
-            `当前服务器IP(${isWhitelisted})不在微信公众号IP白名单中，请在微信公众平台添加此IP地址`,
-          );
-          throw new WorkflowTerminateError(
-            `当前服务器IP(${isWhitelisted})不在微信公众号IP白名单中，请在微信公众平台添加此IP地址`,
-          );
+      await step.do(
+        "validate-ip-whitelist",
+        {
+          retries: { limit: 3, delay: "10 second", backoff: "exponential" },
+          timeout: "10 minutes",
+        },
+        async () => {
+          const isWhitelisted = await this.publisher.validateIpWhitelist();
+          if (typeof isWhitelisted === "string") {
+            this.notifier.warning(
+              "IP白名单验证失败",
+              `当前服务器IP(${isWhitelisted})不在微信公众号IP白名单中，请在微信公众平台添加此IP地址`
+            );
+            throw new WorkflowTerminateError(
+              `当前服务器IP(${isWhitelisted})不在微信公众号IP白名单中，请在微信公众平台添加此IP地址`
+            );
+          }
+          return isWhitelisted;
         }
-        return isWhitelisted;
-      });
-      await this.notifier.info("工作流开始", "开始执行内容抓取和处理")
+      );
+      await this.notifier.info("工作流开始", "开始执行内容抓取和处理");
 
       // 获取数据�?
       const sourceConfigs = await step.do("fetch-sources", async () => {
@@ -119,8 +123,8 @@ export class WeixinArticleWorkflow
         return configs;
       });
 
-      const totalSources = sourceConfigs.firecrawl.length +
-        sourceConfigs.twitter.length;
+      const totalSources =
+        sourceConfigs.firecrawl.length + sourceConfigs.twitter.length;
 
       if (totalSources === 0) {
         throw new WorkflowTerminateError("未配置任何数据源");
@@ -129,245 +133,288 @@ export class WeixinArticleWorkflow
       logger.info(`[数据源] 发现 ${totalSources} 个数据源`);
 
       // 3. 抓取内容
-      const allContents = await step.do("scrape-contents", {
-        retries: { limit: 3, delay: "10 second", backoff: "exponential" },
-        timeout: "10 minutes",
-      }, async () => {
-        const contents: ScrapedContent[] = [];
+      const allContents = await step.do(
+        "scrape-contents",
+        {
+          retries: { limit: 3, delay: "10 second", backoff: "exponential" },
+          timeout: "10 minutes",
+        },
+        async () => {
+          const contents: ScrapedContent[] = [];
 
-        // 创建抓取进度�?
-        const scrapeProgress = new cliProgress.SingleBar({
-          format: '内容抓取进度 |{bar}| {percentage}% | {value}/{total} | {duration}s',
-          barCompleteChar: '\u2588',
-          barIncompleteChar: '\u2591',
-          hideCursor: true,
-          clearOnComplete: true
-        });
-        scrapeProgress.start(totalSources, 0);
-        let scrapeCompleted = 0;
-        let totalArticles = 0;
+          // 创建抓取进度�?
+          const scrapeProgress = new cliProgress.SingleBar({
+            format:
+              "内容抓取进度 |{bar}| {percentage}% | {value}/{total} | {duration}s",
+            barCompleteChar: "█",
+            barIncompleteChar: "░",
+            hideCursor: true,
+            clearOnComplete: true,
+            stopOnComplete: true,
+            forceRedraw: true, // 强制重绘
+            linewrap: false, // 禁用换行
+            barsize: 30,
+            emptyOnZero: true,
+          });
+          scrapeProgress.start(totalSources, 0);
+          let scrapeCompleted = 0;
+          let totalArticles = 0;
 
-        // FireCrawl sources
-        const fireCrawlScraper = this.scraper.get("fireCrawl");
-        if (!fireCrawlScraper) {
-          throw new WorkflowTerminateError("FireCrawlScraper not found");
+          // FireCrawl sources
+          const fireCrawlScraper = this.scraper.get("fireCrawl");
+          if (!fireCrawlScraper) {
+            throw new WorkflowTerminateError("FireCrawlScraper not found");
+          }
+
+          for (const source of sourceConfigs.firecrawl) {
+            const sourceContents = await this.scrapeSource(
+              "FireCrawl",
+              source,
+              fireCrawlScraper
+            );
+            contents.push(...sourceContents);
+            totalArticles += sourceContents.length;
+            scrapeProgress.update(++scrapeCompleted);
+          }
+
+          // Twitter sources
+          const twitterScraper = this.scraper.get("twitter");
+          if (!twitterScraper) {
+            throw new WorkflowTerminateError("TwitterScraper not found");
+          }
+
+          for (const source of sourceConfigs.twitter) {
+            const sourceContents = await this.scrapeSource(
+              "Twitter",
+              source,
+              twitterScraper
+            );
+            contents.push(...sourceContents);
+            totalArticles += sourceContents.length;
+            scrapeProgress.update(++scrapeCompleted);
+          }
+
+          this.stats.contents = contents.length;
+          if (this.stats.contents === 0) {
+            throw new WorkflowTerminateError("未获取到任何内容，流程终止");
+          }
+          scrapeProgress.stop();
+
+          return contents;
         }
-
-        for (const source of sourceConfigs.firecrawl) {
-          const sourceContents = await this.scrapeSource(
-            "FireCrawl",
-            source,
-            fireCrawlScraper,
-          );
-          contents.push(...sourceContents);
-          totalArticles += sourceContents.length;
-          scrapeProgress.update(++scrapeCompleted);
-        }
-
-        // Twitter sources
-        const twitterScraper = this.scraper.get("twitter");
-        if (!twitterScraper) {
-          throw new WorkflowTerminateError("TwitterScraper not found");
-        }
-
-        for (const source of sourceConfigs.twitter) {
-          const sourceContents = await this.scrapeSource(
-            "Twitter",
-            source,
-            twitterScraper,
-          );
-          contents.push(...sourceContents);
-          totalArticles += sourceContents.length;
-          scrapeProgress.update(++scrapeCompleted);
-        }
-
-        this.stats.contents = contents.length;
-        if (this.stats.contents === 0) {
-          throw new WorkflowTerminateError("未获取到任何内容，流程终止");
-        }
-
-        return contents;
-      });
+      );
 
       // 4. 内容去重
-      const uniqueContents = await step.do("dedup-contents", {
-        retries: { limit: 2, delay: "5 second", backoff: "exponential" },
-        timeout: "15 minutes",
-      }, async () => {
-        const ENABLE_DEDUPLICATION = await ConfigManager.getInstance().get(
-          "ENABLE_DEDUPLICATION",
-        );
-
-        if (!ENABLE_DEDUPLICATION) {
-          return allContents;
-        }
-
-        // 初始�?embedding 模型
-        this.embeddingModel = await EmbeddingFactory.getInstance().getProvider({
-          providerType: EmbeddingProviderType.DASHSCOPE,
-          model: "text-embedding-v3",
-        });
-
-        // 获取所有已存在的向�?
-        const existingVectors = await this.vectorService.getByType("article");
-        this.existingVectors = existingVectors.map((v) => ({
-          vector: v.vector,
-          content: v.content,
-        }));
-
-        // 预先计算所有内容的embedding
-        const contentEmbeddings = new Map<string, number[]>();
-        const newVectors: {
-          content: string;
-          vector: number[];
-          vectorDim: number;
-          vectorType: string;
-        }[] = [];
-
-        logger.info("[向量计算] 开始批量计算内容向量");
-        const embedProgress = new cliProgress.SingleBar({
-          format: '向量计算进度 |{bar}| {percentage}% | {value}/{total} | {duration}s',
-          barCompleteChar: '\u2588',
-          barIncompleteChar: '\u2591',
-          hideCursor: true,
-          clearOnComplete: true
-        });
-        embedProgress.start(allContents.length, 0);
-        let embedCompleted = 0;
-
-        // 并行计算所有内容的embedding
-        await Promise.all(
-          allContents.map(async (content) => {
-            try {
-              const embedding = await this.embeddingModel.createEmbedding(
-                content.content,
-              );
-              contentEmbeddings.set(content.id, embedding.embedding);
-              newVectors.push({
-                content: content.content,
-                vector: embedding.embedding,
-                vectorDim: embedding.embedding.length,
-                vectorType: "article",
-              });
-            } catch (error) {
-              logger.error(
-                `[向量计算] 计算内容 ${content.id} 的向量失败`,
-                error,
-              );
-            }
-                          embedProgress.update(++embedCompleted);
-          }),
-        );
-
-        logger.info(
-          `[向量计算] 完成 ${contentEmbeddings.size} 个内容的向量计算`,
-        );
-
-        // 过滤掉重复内�?
-        const deduplicatedContents: ScrapedContent[] = [];
-
-        for (const content of allContents) {
-          const contentVector = contentEmbeddings.get(content.id);
-          if (!contentVector) continue;
-
-          // 检查是否与已处理的内容重复
-          const isDuplicate = await this.checkDuplicateWithVector(
-            content,
-            contentVector,
+      const uniqueContents = await step.do(
+        "dedup-contents",
+        {
+          retries: { limit: 2, delay: "5 second", backoff: "exponential" },
+          timeout: "15 minutes",
+        },
+        async () => {
+          const ENABLE_DEDUPLICATION = await ConfigManager.getInstance().get(
+            "ENABLE_DEDUPLICATION"
           );
 
-          if (!isDuplicate) {
-            deduplicatedContents.push(content);
+          if (!ENABLE_DEDUPLICATION) {
+            logger.info("去重功能关闭");
+            return allContents;
           }
+
+          // 初始�?embedding 模型
+          this.embeddingModel =
+            await EmbeddingFactory.getInstance().getProvider({
+              providerType: EmbeddingProviderType.DASHSCOPE,
+              model: "text-embedding-v3",
+            });
+
+          // 获取所有已存在的向�?
+          const existingVectors = await this.vectorService.getByType("article");
+          this.existingVectors = existingVectors.map((v) => ({
+            vector: v.vector,
+            content: v.content,
+          }));
+
+          // 预先计算所有内容的embedding
+          const contentEmbeddings = new Map<string, number[]>();
+          const newVectors: {
+            content: string;
+            vector: number[];
+            vectorDim: number;
+            vectorType: string;
+          }[] = [];
+
+          logger.info("[向量计算] 开始批量计算内容向量");
+          const embedProgress = new cliProgress.SingleBar({
+            format:
+              "向量计算进度 |{bar}| {percentage}% | {value}/{total} | {duration}s",
+            barCompleteChar: "█",
+            barIncompleteChar: "░",
+            hideCursor: true,
+            clearOnComplete: true,
+            stopOnComplete: true,
+            forceRedraw: true, // 强制重绘
+            linewrap: false, // 禁用换行
+            barsize: 30,
+            emptyOnZero: true,
+          });
+          embedProgress.start(allContents.length, 0);
+          let embedCompleted = 0;
+
+          // 并行计算所有内容的embedding
+          await Promise.all(
+            allContents.map(async (content) => {
+              try {
+                const embedding = await this.embeddingModel.createEmbedding(
+                  content.content
+                );
+                contentEmbeddings.set(content.id, embedding.embedding);
+                newVectors.push({
+                  content: content.content,
+                  vector: embedding.embedding,
+                  vectorDim: embedding.embedding.length,
+                  vectorType: "article",
+                });
+              } catch (error) {
+                logger.error(
+                  `[向量计算] 计算内容 ${content.id} 的向量失败`,
+                  error
+                );
+              }
+              embedProgress.update(++embedCompleted);
+            })
+          );
+          embedProgress.stop();
+          logger.info(
+            `[向量计算] 完成 ${contentEmbeddings.size} 个内容的向量计算`
+          );
+
+          // 过滤掉重复
+          const deduplicatedContents: ScrapedContent[] = [];
+
+          for (const content of allContents) {
+            const contentVector = contentEmbeddings.get(content.id);
+            if (!contentVector) continue;
+
+            // 检查是否与已处理的内容重复
+            const isDuplicate = await this.checkDuplicateWithVector(
+              content,
+              contentVector
+            );
+
+            if (!isDuplicate) {
+              deduplicatedContents.push(content);
+            }
+          }
+
+          // 批量保存新的向量到数据库
+          if (newVectors.length > 0) {
+            logger.info(
+              `[向量存储] 开始批量保存 ${newVectors.length} 个新向量`
+            );
+            await this.vectorService.createBatch(newVectors);
+            logger.info("[向量存储] 向量保存完成");
+          }
+
+          logger.info(
+            `[去重] 完成内容去重，原始内容 ${allContents.length} 篇，去重后 ${deduplicatedContents.length} 篇，重复 ${this.stats.duplicates} 篇`
+          );
+
+          return deduplicatedContents;
         }
-
-        // 批量保存新的向量到数据库
-        if (newVectors.length > 0) {
-          logger.info(`[向量存储] 开始批量保存 ${newVectors.length} 个新向量`);
-          await this.vectorService.createBatch(newVectors);
-          logger.info("[向量存储] 向量保存完成");
-        }
-
-        logger.info(
-          `[去重] 完成内容去重，原始内容 ${allContents.length} 篇，去重后 ${deduplicatedContents.length} 篇，重复 ${this.stats.duplicates} 篇`,
-        );
-
-        return deduplicatedContents;
-      });
+      );
 
       // 5. 内容排序
-      const rankedContents = await step.do("rank-contents", {
-        retries: { limit: 2, delay: "5 second", backoff: "exponential" },
-        timeout: "5 minutes",
-      }, async () => {
-        logger.info(`[内容排序] 开始排序 ${uniqueContents.length} 条内容`);
-        const ranked = await this.contentRanker.rankContents(uniqueContents);
-        if (ranked.length === 0) {
-          throw new WorkflowTerminateError("内容排序失败，没有任何内容被评分");
+      const rankedContents = await step.do(
+        "rank-contents",
+        {
+          retries: { limit: 2, delay: "5 second", backoff: "exponential" },
+          timeout: "5 minutes",
+        },
+        async () => {
+          logger.info(`[内容排序] 开始排序 ${uniqueContents.length} 条内容`);
+          const ranked = await this.contentRanker.rankContents(uniqueContents);
+          if (ranked.length === 0) {
+            logger.warn("未获取有效的排名结果，将使用原始顺序");
+          }
+          // 按分数排序
+          ranked.sort((a, b) => b.score - a.score);
+          logger.info("[内容排序] 内容排序完成");
+          return ranked;
         }
-        // 按分数排序
-        ranked.sort((a, b) => b.score - a.score);
-        logger.info("[内容排序] 内容排序完成");
-        return ranked;
-      });
+      );
 
       // 6. 处理排序后的内容
-      const processedContents = await step.do("process-contents", {
-        retries: { limit: 2, delay: "5 second", backoff: "exponential" },
-        timeout: "15 minutes",
-      }, async () => {
-        const maxArticles = event.payload.maxArticles ||
-          await ConfigManager.getInstance().get("ARTICLE_NUM") || 10;
+      const processedContents = await step.do(
+        "process-contents",
+        {
+          retries: { limit: 2, delay: "5 second", backoff: "exponential" },
+          timeout: "15 minutes",
+        },
+        async () => {
+          const maxArticles =
+            event.payload.maxArticles ||
+            (await ConfigManager.getInstance().get("ARTICLE_NUM")) ||
+            10;
 
-        // 取前maxArticles篇文章
-        const topContents: ScrapedContent[] = [];
+          // 取前maxArticles篇文章
+          const topContents: ScrapedContent[] = [];
 
-        for (const ranked of rankedContents.slice(0, maxArticles)) {
-          const content = uniqueContents.find((c) => c.id === ranked.id);
-          if (content) {
-            content.metadata.score = ranked.score;
-            content.metadata.wordCount = content.content.length;
-            content.metadata.readTime = Math.ceil(
-              content.metadata.wordCount / 275,
-            );
-            topContents.push(content);
+          for (const ranked of rankedContents.slice(0, maxArticles)) {
+            const content = uniqueContents.find((c) => c.id === ranked.id);
+            if (content) {
+              content.metadata.score = ranked.score;
+              content.metadata.wordCount = content.content.length;
+              content.metadata.readTime = Math.ceil(
+                content.metadata.wordCount / 275
+              );
+              topContents.push(content);
+            }
           }
-        }
 
-        // 如果文章数量不足，记录警告
-        if (topContents.length < maxArticles) {
-          logger.warn(
-            `[内容处理] 文章数量不足，预期 ${maxArticles} 篇，实际 ${topContents.length} 篇`,
-          );
-          await this.notifier.warning(
-            "内容数量不足",
-            `仅获取到 ${topContents.length} 篇文章，少于预期 ${maxArticles} 篇`,
-          );
-        }
+          // 如果文章数量不足，记录警告
+          if (topContents.length < maxArticles) {
+            logger.warn(
+              `[内容处理] 文章数量不足，预期 ${maxArticles} 篇，实际 ${topContents.length} 篇`
+            );
+            await this.notifier.warning(
+              "内容数量不足",
+              `仅获取到 ${topContents.length} 篇文章，少于预期 ${maxArticles} 篇`
+            );
+          }
 
-        logger.debug(
-          "[内容处理] 开始处理文章",
-          JSON.stringify(topContents, null, 2),
-        );
+          logger.debug(
+            "[内容处理] 开始处理文章",
+            JSON.stringify(topContents, null, 2)
+          );
 
           // 处理内容（润色等）
-        const processProgress = new cliProgress.SingleBar({
-          format: '内容处理进度 |{bar}| {percentage}% | {value}/{total} | {duration}s',
-          barCompleteChar: '\u2588',
-          barIncompleteChar: '\u2591',
-          hideCursor: true,
-          clearOnComplete: true
-        });
-        processProgress.start(topContents.length, 0);
-        let processCompleted = 0;
+          const processProgress = new cliProgress.SingleBar({
+            format:
+              "内容处理进度 |{bar}| {percentage}% | {value}/{total} | {duration}s",
+            barCompleteChar: "█",
+            barIncompleteChar: "░",
+            hideCursor: true,
+            clearOnComplete: true,
+            stopOnComplete: true,
+            forceRedraw: true, // 强制重绘
+            linewrap: false, // 禁用换行
+            barsize: 30,
+            emptyOnZero: true,
+          });
+          processProgress.start(topContents.length, 0);
+          let processCompleted = 0;
 
-        await Promise.all(topContents.map(async (content) => {
-          await this.processContent(content);
-          processProgress.update(++processCompleted);
-        }));
+          await Promise.all(
+            topContents.map(async (content) => {
+              await this.processContent(content);
+              processProgress.update(++processCompleted);
+            })
+          );
 
-        return topContents;
-      });
+          return topContents;
+        }
+      );
 
       // 7. 生成文章
       const { summaryTitle, mediaId, renderedTemplate } = await step.do(
@@ -388,26 +435,29 @@ export class WeixinArticleWorkflow
               metadata: content.metadata,
               keywords: content.metadata.keywords,
               media: content.media,
-            }),
+            })
           );
 
           // 生成总标题
-          const title = await this.summarizer.generateTitle(
-            processedContents.map((c) => c.title).join(" | "),
-          ).then((t) => {
-            t = `${new Date().toLocaleDateString()} AI速报 | ${t}`;
-            return t.slice(0, 64);
-          });
+          const title = await this.summarizer
+            .generateTitle(processedContents.map((c) => c.title).join(" | "))
+            .then((t) => {
+              t = `${new Date().toLocaleDateString()} AI速报 | ${t}`;
+              return t.slice(0, 64);
+            });
 
           // 生成封面图片
-          const imageGenerator = await ImageGeneratorFactory.getInstance()
-            .getGenerator(ImageGeneratorType.ALIWANX_POSTER);
+          const imageGenerator =
+            await ImageGeneratorFactory.getInstance().getGenerator(
+              ImageGeneratorType.ALIWANX_POSTER
+            );
           const imageUrl = await imageGenerator.generate({
             title: title.split(" | ")[1].trim().slice(0, 30),
             sub_title: new Date().toLocaleDateString() + " AI速报",
-            prompt_text_zh: `科技前沿资讯 | 人工智能新闻 | 每日AI快报 - ${
-              title.split(" | ")[1].trim().slice(0, 30)
-            }`,
+            prompt_text_zh: `科技前沿资讯 | 人工智能新闻 | 每日AI快报 - ${title
+              .split(" | ")[1]
+              .trim()
+              .slice(0, 30)}`,
             generate_mode: "generate",
             generate_num: 1,
           });
@@ -423,22 +473,26 @@ export class WeixinArticleWorkflow
             mediaId: media,
             renderedTemplate: template,
           };
-        },
+        }
       );
 
       // 8. 发布文章
-      await step.do("publish-article", {
-        retries: { limit: 3, delay: "10 second", backoff: "exponential" },
-        timeout: "5 minutes",
-      }, async () => {
-        logger.info("[发布] 发布到微信公众号");
-        return await this.publisher.publish(
-          renderedTemplate,
-          summaryTitle,
-          summaryTitle,
-          mediaId,
-        );
-      });
+      await step.do(
+        "publish-article",
+        {
+          retries: { limit: 3, delay: "10 second", backoff: "exponential" },
+          timeout: "5 minutes",
+        },
+        async () => {
+          logger.info("[发布] 发布到微信公众号");
+          return await this.publisher.publish(
+            renderedTemplate,
+            summaryTitle,
+            summaryTitle,
+            mediaId
+          );
+        }
+      );
 
       // 9. 完成报告
       const summary = `
@@ -475,7 +529,7 @@ export class WeixinArticleWorkflow
   private async scrapeSource(
     type: string,
     source: { identifier: string },
-    scraper: ContentScraper,
+    scraper: ContentScraper
   ): Promise<ScrapedContent[]> {
     try {
       logger.debug(`[${type}] 抓取: ${source.identifier}`);
@@ -488,7 +542,7 @@ export class WeixinArticleWorkflow
       logger.error(`[${type}] ${source.identifier} 抓取失败:`, message);
       await this.notifier.warning(
         `${type}抓取失败`,
-        `数据源: ${source.identifier}\n错误: ${message}`,
+        `数据源: ${source.identifier}\n错误: ${message}`
       );
       return [];
     }
@@ -505,7 +559,7 @@ export class WeixinArticleWorkflow
       logger.error(`[内容处理] ${content.id} 处理失败:`, message);
       await this.notifier.warning(
         "内容处理失败",
-        `ID: ${content.id}\n保留原始内容`,
+        `ID: ${content.id}\n保留原始内容`
       );
       content.title = content.title || "无标题";
       content.content = content.content || "内容处理失败";
@@ -515,23 +569,26 @@ export class WeixinArticleWorkflow
 
   private async checkDuplicateWithVector(
     content: ScrapedContent,
-    contentVector: number[],
+    contentVector: number[]
   ): Promise<boolean> {
     try {
-        // 在内存中计算相似度
+      // 在内存中计算相似度
       for (const existingVector of this.existingVectors) {
         if (!existingVector.vector || !contentVector) {
           continue;
         }
         const similarity = VectorSimilarityUtil.cosineSimilarity(
           contentVector,
-          existingVector.vector,
+          existingVector.vector
         );
         if (similarity >= 0.85) {
           logger.info(
-            `[去重] 发现重复内容: ${content.id}, 相似度 ${similarity}, 原内容 ${
-              existingVector.content?.slice(0, 50)
-            }...`,
+            `[去重] 发现重复内容: ${
+              content.id
+            }, 相似度 ${similarity}, 原内容 ${existingVector.content?.slice(
+              0,
+              50
+            )}...`
           );
           this.stats.duplicates++;
           return true;

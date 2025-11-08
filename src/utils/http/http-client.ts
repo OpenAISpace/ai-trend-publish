@@ -10,7 +10,7 @@ export class HttpError extends Error {
     public statusCode?: number,
     public response?: Response,
     public url?: string,
-    public method?: string,
+    public method?: string
   ) {
     super(message);
     this.name = "HttpError";
@@ -54,7 +54,7 @@ export class HttpClient {
 
   private async fetchWithTimeout(
     url: string,
-    options: RequestOptions = {},
+    options: RequestOptions = {}
   ): Promise<Response> {
     const { timeout = 30000, ...fetchOptions } = options;
 
@@ -79,7 +79,7 @@ export class HttpClient {
 
   private async retryFetch(
     url: string,
-    options: RequestOptions = {},
+    options: RequestOptions = {}
   ): Promise<Response> {
     const { retries = 3, retryDelay = 1000, ...fetchOptions } = options;
 
@@ -95,19 +95,22 @@ export class HttpClient {
             response.status,
             response,
             url,
-            fetchOptions.method || "GET",
+            fetchOptions.method || "GET"
           );
         }
 
         return response;
       } catch (error) {
-        lastError = error instanceof HttpError ? error : new HttpError(
-          (error as Error).message,
-          undefined,
-          undefined,
-          url,
-          fetchOptions.method || "GET",
-        );
+        lastError =
+          error instanceof HttpError
+            ? error
+            : new HttpError(
+                (error as Error).message,
+                undefined,
+                undefined,
+                url,
+                fetchOptions.method || "GET"
+              );
 
         const remainingAttempts = retries - attempt - 1;
         logger.warn(
@@ -118,7 +121,7 @@ export class HttpClient {
             attempt: attempt + 1,
             maxAttempts: retries,
             error: lastError,
-          },
+          }
         );
 
         if (remainingAttempts > 0) {
@@ -132,7 +135,7 @@ export class HttpClient {
 
   public async request<T>(
     url: string,
-    options: RequestOptions = {},
+    options: RequestOptions = {}
   ): Promise<T> {
     try {
       const response = await this.retryFetch(url, options);
@@ -147,7 +150,7 @@ export class HttpClient {
         undefined,
         undefined,
         url,
-        options.method || "GET",
+        options.method || "GET"
       );
     }
   }
@@ -161,9 +164,10 @@ export class HttpClient {
       return true;
     } catch (error) {
       logger.error(`健康检查失败: ${url}`, {
-        error: error instanceof HttpError
-          ? error
-          : new HttpError((error as Error).message),
+        error:
+          error instanceof HttpError
+            ? error
+            : new HttpError((error as Error).message),
         url,
         timestamp: new Date().toISOString(),
       });

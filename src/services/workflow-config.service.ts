@@ -1,8 +1,8 @@
-import { WorkflowType } from "@src/controllers/cron.ts";
+import { WorkflowType } from "@src/services/workflow-factory.ts";
 import { ConfigManager } from "@src/utils/config/config-manager.ts";
 
 export interface DailyWorkflowConfig {
-  dayOfWeek: 1 | 2 | 3 | 4 | 5 | 6 | 7; // 1-7，表示周一到周�?
+  dayOfWeek: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   workflowType: WorkflowType;
   isEnabled: boolean;
 }
@@ -22,10 +22,6 @@ export class WorkflowConfigService {
     dayOfWeek: 1 | 2 | 3 | 4 | 5 | 6 | 7,
   ): Promise<WorkflowType | null> {
     try {
-      // workflowType 将会是以下三个字符串之一:
-      // - "weixin-article-workflow"
-      // - "weixin-aibench-workflow"
-      // - "weixin-hellogithub-workflow"
       const workflowType = await ConfigManager.getInstance().get<string>(
         `${dayOfWeek}_of_week_workflow`,
       );
@@ -33,7 +29,7 @@ export class WorkflowConfigService {
         ? WorkflowType[workflowType as keyof typeof WorkflowType]
         : WorkflowType.WeixinArticle;
     } catch (error) {
-      console.error("获取工作流配置失�?", error);
+      console.error("获取工作流配置失败", error);
       return WorkflowType.WeixinArticle;
     }
   }

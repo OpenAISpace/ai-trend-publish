@@ -5,8 +5,13 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "start": "bun run src/index.ts",
-    "dev": "bun run --watch src/index.ts",
+    "dev:api": "bun run --watch src/index.ts",
+    "start:api": "bun run src/index.ts",
+    "start": "bun run frontend:build && bun run start:api",
+    "frontend:install": "bun install --cwd ./fronted",
+    "frontend:dev": "bun run --cwd ./fronted dev",
+    "frontend:build": "bun run --cwd ./fronted build",
+    "frontend:start": "bun run --cwd ./fronted start",
     "test": "bun run src/test.ts",
     "build:win": "bun build src/test.ts --compile --target=bun-windows-x64 --outfile=trendFinder.exe",
     "build:mac-x64": "bun build src/test.ts --compile --target=bun-darwin-x64 --outfile=trendFinder-mac-x64",
@@ -28,6 +33,7 @@
     "fast-xml-parser": "^4.5.0",
     "firecrawl": "^1.7.1",
     "highlight.js": "^11.10.0",
+    "hono": "^4.6.15",
     "lru-cache": "^11.0.2",
     "marked": "^14.1.3",
     "mysql2": "^3.13.0",
@@ -43,5 +49,7 @@
     "@types/cheerio": "^0.22.31",
     "bun-types": "latest"
   },
-  "trustedDependencies": ["sharp"]
+  "trustedDependencies": [
+    "sharp"
+  ]
 }

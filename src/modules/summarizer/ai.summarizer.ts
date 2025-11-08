@@ -26,16 +26,16 @@ export class AISummarizer implements ContentSummarizer {
   constructor() {
     this.llmFactory = LLMFactory.getInstance();
     this.configInstance = ConfigManager.getInstance();
-    this.configInstance.get(SummarizarSetting.AI_SUMMARIZER_LLM_PROVIDER).then(
-      (provider) => {
+    this.configInstance
+      .get(SummarizarSetting.AI_SUMMARIZER_LLM_PROVIDER)
+      .then((provider) => {
         logger.info(`Summarizer当前使用的LLM模型: ${provider}`);
-      },
-    );
+      });
   }
 
   async summarize(
     content: string,
-    options?: Record<string, any>,
+    options?: Record<string, any>
   ): Promise<Summary> {
     if (!content) {
       throw new Error("Content is required for summarization");
@@ -44,27 +44,30 @@ export class AISummarizer implements ContentSummarizer {
     return RetryUtil.retryOperation(async () => {
       const llm = await this.llmFactory.getLLMProvider(
         await this.configInstance.get(
-          SummarizarSetting.AI_SUMMARIZER_LLM_PROVIDER,
-        ),
+          SummarizarSetting.AI_SUMMARIZER_LLM_PROVIDER
+        )
       );
-      const response = await llm.createChatCompletion([
+      const response = await llm.createChatCompletion(
+        [
+          {
+            role: "system",
+            content: await getSummarizerSystemPrompt(),
+          },
+          {
+            role: "user",
+            content: getSummarizerUserPrompt({
+              content,
+              language: options?.language,
+              minLength: options?.minLength,
+              maxLength: options?.maxLength,
+            }),
+          },
+        ],
         {
-          role: "system",
-          content: getSummarizerSystemPrompt(),
-        },
-        {
-          role: "user",
-          content: getSummarizerUserPrompt({
-            content,
-            language: options?.language,
-            minLength: options?.minLength,
-            maxLength: options?.maxLength,
-          }),
-        },
-      ], {
-        temperature: 0.7,
-        response_format: { type: "json_object" },
-      });
+          temperature: 0.7,
+          response_format: { type: "json_object" },
+        }
+      );
 
       const completion = response.choices[0]?.message?.content;
       if (!completion) {
@@ -73,10 +76,7 @@ export class AISummarizer implements ContentSummarizer {
 
       try {
         const summary = JSON.parse(completion) as Summary;
-        if (
-          !summary.title ||
-          !summary.content
-        ) {
+        if (!summary.title || !summary.content) {
           throw new Error("摘要结果格式不正确");
         }
         return summary;
@@ -84,7 +84,7 @@ export class AISummarizer implements ContentSummarizer {
         throw new Error(
           `解析摘要结果失败: ${
             error instanceof Error ? error.message : "未知错误"
-          }`,
+          }`
         );
       }
     });
@@ -92,30 +92,33 @@ export class AISummarizer implements ContentSummarizer {
 
   async generateTitle(
     content: string,
-    options?: Record<string, any>,
+    options?: Record<string, any>
   ): Promise<string> {
     return RetryUtil.retryOperation(async () => {
       const llm = await this.llmFactory.getLLMProvider(
         await this.configInstance.get(
-          SummarizarSetting.AI_SUMMARIZER_LLM_PROVIDER,
-        ),
+          SummarizarSetting.AI_SUMMARIZER_LLM_PROVIDER
+        )
       );
-      const response = await llm.createChatCompletion([
+      const response = await llm.createChatCompletion(
+        [
+          {
+            role: "system",
+            content: getTitleSystemPrompt(),
+          },
+          {
+            role: "user",
+            content: getTitleUserPrompt({
+              content,
+              language: options?.language,
+            }),
+          },
+        ],
         {
-          role: "system",
-          content: getTitleSystemPrompt(),
-        },
-        {
-          role: "user",
-          content: getTitleUserPrompt({
-            content,
-            language: options?.language,
-          }),
-        },
-      ], {
-        temperature: 0.7,
-        max_tokens: 100,
-      });
+          temperature: 0.7,
+          max_tokens: 100,
+        }
+      );
 
       const title = response.choices[0]?.message?.content;
       if (!title) {

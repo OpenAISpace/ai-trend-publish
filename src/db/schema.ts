@@ -1,4 +1,4 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, primaryKey, int, varchar, index, foreignKey, text, json, timestamp, bigint, tinyint } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, primaryKey, int, varchar, index, uniqueIndex, foreignKey, text, json, timestamp, bigint, tinyint } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 
 export const config = mysqlTable("config", {
@@ -8,6 +8,20 @@ export const config = mysqlTable("config", {
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "config_id"}),
+]);
+
+export const configMetadata = mysqlTable("config_metadata", {
+	id: int().autoincrement().notNull(),
+	key: varchar({ length: 255 }).notNull(),
+	description: text(),
+	scope: varchar({ length: 50 }).default("db"),
+	isEditable: tinyint("is_editable").default(1),
+	category: varchar({ length: 100 }).default("general"),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	uniqueIndex("uq_config_metadata_key").on(table.key),
+	primaryKey({ columns: [table.id], name: "config_metadata_id"}),
 ]);
 
 export const dataSources = mysqlTable("data_sources", {
@@ -71,4 +85,89 @@ export const vectorItems = mysqlTable("vector_items", {
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "vector_items_id"}),
+]);
+
+export const prompts = mysqlTable("prompts", {
+	id: int().autoincrement().notNull(),
+	promptId: varchar("prompt_id", { length: 255 }).notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	content: text("content").notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	uniqueIndex("uq_prompt_id").on(table.promptId),
+	primaryKey({ columns: [table.id], name: "prompts_id"}),
+]);
+
+export const workflowSchedules = mysqlTable("workflow_schedules", {
+	id: int().autoincrement().notNull(),
+	workflowId: varchar("workflow_id", { length: 255 }).notNull(),
+	cron: varchar({ length: 255 }).notNull(),
+	timezone: varchar({ length: 100 }).notNull().default("Asia/Shanghai"),
+	isEnabled: tinyint("is_enabled").notNull().default(1),
+	nextRunAt: timestamp("next_run_at", { mode: "string" }),
+	lastRunAt: timestamp("last_run_at", { mode: "string" }),
+	lastDurationMs: int("last_duration_ms").default(0),
+	avgDurationMs: int("avg_duration_ms").default(0),
+	successCount: int("success_count").default(0),
+	failureCount: int("failure_count").default(0),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, 
+(table) => [
+	index("idx_workflow_schedule_workflow").on(table.workflowId),
+	uniqueIndex("uq_workflow_schedule_workflow").on(table.workflowId),
+	primaryKey({ columns: [table.id], name: "workflow_schedules_id"}),
+]);
+
+export const workflowRuns = mysqlTable("workflow_runs", {
+	id: varchar({ length: 64 }).notNull(),
+	workflowId: varchar("workflow_id", { length: 255 }).notNull(),
+	workflowName: varchar("workflow_name", { length: 255 }).notNull(),
+	status: varchar({ length: 32 }).notNull(),
+	trigger: varchar({ length: 32 }).notNull(),
+	payload: json("payload"),
+	resultSummary: text("result_summary"),
+	startedAt: timestamp("started_at", { mode: 'string' }).defaultNow().notNull(),
+	finishedAt: timestamp("finished_at", { mode: 'string' }),
+	durationMs: int("duration_ms"),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "workflow_runs_id"}),
+	index("idx_workflow_runs_workflow").on(table.workflowId),
+]);
+
+export const workflowRunSteps = mysqlTable("workflow_run_steps", {
+	id: int().autoincrement().notNull(),
+	runId: varchar("run_id", { length: 64 }).notNull(),
+	stepId: varchar("step_id", { length: 255 }).notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	status: varchar({ length: 32 }).notNull(),
+	durationMs: int("duration_ms").default(0),
+	attempts: int().default(1),
+	error: text(),
+	startedAt: timestamp("started_at", { mode: 'string' }),
+	finishedAt: timestamp("finished_at", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	index("idx_workflow_run_steps_run").on(table.runId),
+	primaryKey({ columns: [table.id], name: "workflow_run_steps_id"}),
+]);
+
+export const workflowResults = mysqlTable("workflow_results", {
+	id: varchar({ length: 64 }).notNull(),
+	workflowId: varchar("workflow_id", { length: 255 }).notNull(),
+	workflowName: varchar("workflow_name", { length: 255 }).notNull(),
+	status: varchar({ length: 32 }).notNull(),
+	generatedAt: timestamp("generated_at", { mode: 'string' }).defaultNow().notNull(),
+	outputUrl: varchar("output_url", { length: 500 }),
+	preview: text(),
+	metadata: json(),
+	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.id], name: "workflow_results_id"}),
+	index("idx_workflow_results_workflow").on(table.workflowId),
 ]);

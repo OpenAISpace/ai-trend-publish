@@ -82,6 +82,13 @@ bun run build:linux-arm64 # ARM架构
 bun run build:all
 ```
 
+### 5. 前端托管与构建接管
+
+- `bun run dev` 同时启动后端 `src/index.ts` 与前端 `fronted` 的 `bun dev`，并由后端 Bun 服务器在非 `/api` 请求上做代理（目标来自 `FRONTEND_DEV_SERVER` 环境变量）。
+- `bun start` 会先执行 `bun run frontend:build`（构建 `fronted/dist`），随后在同一 Bun 进程内为正式环境提供静态资源；静态目录可通过 `FRONTEND_DIST` 配置。
+- 仅需要后端时，可使用 `bun run dev:api` 或 `bun run start:api`。
+- 额外脚本：`bun run frontend:install`、`bun run frontend:dev`、`bun run frontend:build`、`bun run frontend:start` 方便单独操作前端项目。
+
 ## 🌟 主要功能
 
 - 🤖 多源数据采集
@@ -357,12 +364,19 @@ npx ts-node -r tsconfig-paths/register src\modules\render\test\test.weixin.templ
 
 本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
 
-### JSON-RPC API
+### REST API
 
-提供了基于 JSON-RPC 2.0 协议的 API，支持手动触发工作流。
+提供了基于 REST 风格的 API，支持手动触发工作流。
 
-- 端点: `/api/workflow`
-- 支持方法: `triggerWorkflow`
-- 详细文档: [JSON-RPC API 文档](https://openaispace.github.io/ai-trend-publish/json-rpc-api.html )
+- 端点: `POST /api/workflows/:workflowId/trigger`
+- 请求体: `{"payload": {...}, "trigger": "manual|api|cron"}`
+- 详细文档: [API 文档](https://openaispace.github.io/ai-trend-publish/json-rpc-api.html )
+
+```bash
+curl -X POST http://localhost:8000/api/workflows/weixin-article-workflow/trigger \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-api-key" \
+  -d '{"payload": {"forcePublish": true}}'
+```
 
 ![](https://oss.liuyaowen.cn/image/202504242031044.png)
