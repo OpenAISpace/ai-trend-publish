@@ -5,9 +5,9 @@
 
 > 🌰 示例公众号：**AISPACE科技空间**
 
-![](https://oss.liuyaowen.cn/image/202504242030107.png)
-点击链接加入群聊【AI-Trend-Publish】：https://qm.qq.com/q/EsiP8ZlEFa
 
+点击链接加入群聊【TrendPublish-1】：https://qm.qq.com/q/EsiP8ZlEFa
+点击链接加入群聊【TrendPublish-2】：https://qm.qq.com/q/ZSOmGi01S8
 
 
 > 即刻关注，体验 AI 智能创作的内容～
