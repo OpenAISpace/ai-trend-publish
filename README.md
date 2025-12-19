@@ -21,6 +21,8 @@
 
 ## 🚀 快速开始
 
+感谢 https://github.com/233cy 提供的入门教程 https://mp.weixin.qq.com/s/cpfNsezIA3OOvxHLdcdmkg
+
 ### 1. 安装 Deno
 
 Windows (PowerShell):
