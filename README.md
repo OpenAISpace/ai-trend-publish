@@ -6,7 +6,7 @@
 > 🌰 示例公众号：**AISPACE科技空间**
 
 
-点击链接加入群聊【TrendPublish-1】：https://qm.qq.com/q/EsiP8ZlEFa
+点击链接加入群聊【TrendPublish-1】：https://qm.qq.com/q/EsiP8ZlEFa （已满）
 
 点击链接加入群聊【TrendPublish-2】：https://qm.qq.com/q/ZSOmGi01S8
 
