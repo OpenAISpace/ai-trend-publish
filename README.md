@@ -5,7 +5,7 @@
 
 > 🌰 示例公众号：**AISPACE科技空间**
 
-点击加入discard频道：https://discord.gg/9RZ3pwMWTQ
+点击加入discard频道：https://discord.gg/mrZvBHNawS
 
 > 即刻关注，体验 AI 智能创作的内容～
 
